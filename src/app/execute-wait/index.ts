@@ -10,7 +10,7 @@ export async function executeWait(
 
   if (!request.enabled) {
     dependencies.log(
-      `Skipping wait because enabled=false. effective_seconds=${request.effectiveSeconds}${labelSegment}`,
+      `Skipping wait because enabled=false. effective_seconds=${request.effectiveSeconds}${labelSegment}.`,
     )
     return { waited: false, effectiveSeconds: request.effectiveSeconds }
   }
