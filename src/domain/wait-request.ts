@@ -27,7 +27,7 @@ export function normalizeWaitRequest(raw: RawWaitInputs): WaitRequest {
 function parseBooleanInput(
   value: string | undefined,
   defaultValue: boolean,
-  name: 'enabled',
+  name: string,
 ): boolean {
   if (value === undefined) {
     return defaultValue

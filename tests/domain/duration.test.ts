@@ -25,4 +25,17 @@ describe('resolveEffectiveSeconds', () => {
       "Input 'minutes' must be a non-negative integer.",
     )
   })
+
+  it('accepts the maximum effective seconds', () => {
+    expect(resolveEffectiveSeconds({ seconds: '2147483' })).toBe(2147483)
+  })
+
+  it('rejects values above the maximum effective seconds', () => {
+    expect(() => resolveEffectiveSeconds({ seconds: '2147484' })).toThrow(
+      'Duration must be <= 2147483 seconds.',
+    )
+    expect(() => resolveEffectiveSeconds({ minutes: '35792' })).toThrow(
+      'Duration must be <= 2147483 seconds.',
+    )
+  })
 })

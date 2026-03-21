@@ -3,7 +3,18 @@ export interface DurationInputs {
   seconds?: string
 }
 
+const MAX_EFFECTIVE_SECONDS = 2_147_483
+
 export function resolveEffectiveSeconds(inputs: DurationInputs): number {
+  const effectiveSeconds = resolveWithoutBound(inputs)
+  if (effectiveSeconds > MAX_EFFECTIVE_SECONDS) {
+    throw new Error(`Duration must be <= ${MAX_EFFECTIVE_SECONDS} seconds.`)
+  }
+
+  return effectiveSeconds
+}
+
+function resolveWithoutBound(inputs: DurationInputs): number {
   if (inputs.seconds !== undefined) {
     return parseNonNegativeInteger('seconds', inputs.seconds)
   }
