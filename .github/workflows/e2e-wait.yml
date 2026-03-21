@@ -1,0 +1,84 @@
+name: E2E Wait
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration_seconds:
+        description: Wait duration in seconds for the local action
+        required: true
+        default: '180'
+        type: string
+
+run-name: E2E wait (${{ inputs.duration_seconds }}s)
+
+permissions:
+  contents: read
+
+jobs:
+  wait-e2e:
+    name: Wait E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Describe Run
+        env:
+          DURATION_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          echo "Duration seconds: ${DURATION_SECONDS}"
+          echo "Let the wait complete to verify success."
+          echo "If you want to verify prompt interruption, cancel the workflow while the wait step is running."
+
+      - name: Wait with Local Action
+        id: wait
+        uses: ./
+        with:
+          seconds: ${{ inputs.duration_seconds }}
+          label: e2e
+
+      - name: Assert Wait Outputs
+        if: ${{ success() }}
+        env:
+          WAITED: ${{ steps.wait.outputs.waited }}
+          EFFECTIVE_SECONDS: ${{ steps.wait.outputs.effective_seconds }}
+          EXPECTED_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          if [ "${WAITED}" != "true" ]; then
+            echo "::error::Expected waited=true, got '${WAITED}'."
+            exit 1
+          fi
+          if [ "${EFFECTIVE_SECONDS}" != "${EXPECTED_SECONDS}" ]; then
+            echo "::error::Expected effective_seconds='${EXPECTED_SECONDS}', got '${EFFECTIVE_SECONDS}'."
+            exit 1
+          fi
+          echo "Local action completed with expected outputs."
+
+  confirm-complete:
+    name: Confirm Complete Path
+    needs: [wait-e2e]
+    if: ${{ needs.wait-e2e.result == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Confirm Completion
+        env:
+          DURATION_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          echo "The local wait action completed successfully after ${DURATION_SECONDS} seconds."
+
+  confirm-cancel:
+    name: Confirm Cancel Path
+    needs: [wait-e2e]
+    if: ${{ cancelled() && needs.wait-e2e.result == 'cancelled' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Confirm Prompt Cancellation
+        env:
+          DURATION_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          echo "The wait job was cancelled before the full ${DURATION_SECONDS}-second duration elapsed."
+          echo "This job started after workflow cancellation, which is the expected prompt-interruption signal."

@@ -8,6 +8,9 @@ export class WaitCancelledError extends Error {
   }
 }
 
+const MILLISECONDS_PER_SECOND = 1000
+const SECONDS_PER_DELAY_CHUNK = 60
+
 export async function cancellationAwareDelay(seconds: number): Promise<void> {
   if (seconds <= 0) {
     return
@@ -15,6 +18,7 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
 
   await new Promise<void>((resolve, reject) => {
     let timeout: NodeJS.Timeout | undefined
+    let remainingSeconds = seconds
     let settled = false
 
     const cleanup = () => {
@@ -49,17 +53,30 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
       return
     }
 
-    try {
-      timeout = setTimeout(() => {
-        if (settled) {
-          return
-        }
+    const scheduleNextChunk = () => {
+      if (settled) {
+        return
+      }
+
+      if (remainingSeconds <= 0) {
         settled = true
         cleanup()
         resolve()
-      }, seconds * 1000)
-    } catch {
-      rejectWithError(new Error('Failed to start wait timer.'))
+        return
+      }
+
+      const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_DELAY_CHUNK)
+      remainingSeconds -= chunkSeconds
+      try {
+        timeout = setTimeout(
+          scheduleNextChunk,
+          chunkSeconds * MILLISECONDS_PER_SECOND,
+        )
+      } catch {
+        rejectWithError(new Error('Failed to start wait timer.'))
+      }
     }
+
+    scheduleNextChunk()
   })
 }

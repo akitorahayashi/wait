@@ -25768,12 +25768,15 @@ class WaitCancelledError extends Error {
     }
 }
 exports.WaitCancelledError = WaitCancelledError;
+const MILLISECONDS_PER_SECOND = 1000;
+const SECONDS_PER_DELAY_CHUNK = 60;
 async function cancellationAwareDelay(seconds) {
     if (seconds <= 0) {
         return;
     }
     await new Promise((resolve, reject) => {
         let timeout;
+        let remainingSeconds = seconds;
         let settled = false;
         const cleanup = () => {
             if (timeout !== undefined) {
@@ -25803,19 +25806,26 @@ async function cancellationAwareDelay(seconds) {
             rejectWithError(new Error('Failed to install cancellation handlers.'));
             return;
         }
-        try {
-            timeout = setTimeout(() => {
-                if (settled) {
-                    return;
-                }
+        const scheduleNextChunk = () => {
+            if (settled) {
+                return;
+            }
+            if (remainingSeconds <= 0) {
                 settled = true;
                 cleanup();
                 resolve();
-            }, seconds * 1000);
-        }
-        catch {
-            rejectWithError(new Error('Failed to start wait timer.'));
-        }
+                return;
+            }
+            const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_DELAY_CHUNK);
+            remainingSeconds -= chunkSeconds;
+            try {
+                timeout = setTimeout(scheduleNextChunk, chunkSeconds * MILLISECONDS_PER_SECOND);
+            }
+            catch {
+                rejectWithError(new Error('Failed to start wait timer.'));
+            }
+        };
+        scheduleNextChunk();
     });
 }
 
@@ -25855,20 +25865,13 @@ async function executeWait(request, dependencies) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveEffectiveSeconds = resolveEffectiveSeconds;
-const MAX_EFFECTIVE_SECONDS = 2_147_483;
+const SECONDS_PER_MINUTE = 60;
 function resolveEffectiveSeconds(inputs) {
-    const effectiveSeconds = resolveWithoutBound(inputs);
-    if (effectiveSeconds > MAX_EFFECTIVE_SECONDS) {
-        throw new Error(`Duration must be <= ${MAX_EFFECTIVE_SECONDS} seconds.`);
-    }
-    return effectiveSeconds;
-}
-function resolveWithoutBound(inputs) {
     if (inputs.seconds !== undefined) {
         return parseNonNegativeInteger('seconds', inputs.seconds);
     }
     if (inputs.minutes !== undefined) {
-        return parseNonNegativeInteger('minutes', inputs.minutes) * 60;
+        return parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE;
     }
     return 0;
 }
