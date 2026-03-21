@@ -1,12 +1,12 @@
 # Documentation
 
-This directory is the central documentation index for `act-tmpl`.
+This directory is the central documentation index for `wait`.
 
 ## Usage
 
 - [Usage](usage.md): workflow examples, install modes, outputs, and local verification entrypoints
 
-The action usage describes message rendering inputs and `rendered-message` output behavior.
+The action usage describes duration resolution, skip behavior, and cancellation-aware waiting.
 
 ## Architecture
 

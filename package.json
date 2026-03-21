@@ -1,7 +1,7 @@
 {
-  "name": "act-tmpl",
-  "version": "0.1.0",
-  "description": "TypeScript GitHub Action template repository",
+  "name": "wait",
+  "version": "1.0.0",
+  "description": "Cancellation-aware wait GitHub Action",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -17,8 +17,7 @@
     "package": "ncc build src/index.ts -o dist --license licenses.txt"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0"
+    "@actions/core": "^1.11.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.5",

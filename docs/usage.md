@@ -1,42 +1,56 @@
 # Usage
 
-`act-tmpl` renders a final message string from action inputs.
+`wait` resolves one effective duration and performs one cancellation-aware wait when required.
 
 ## Standard Workflow Usage
 
 ```yaml
-- uses: akitorahayashi/act-tmpl@v1
+- uses: akitorahayashi/wait@v1
   with:
-    message: hello world
+    enabled: true
+    seconds: 30
 ```
 
-This default form emits `hello world` as `rendered-message`.
+This form performs a 30-second wait and emits `waited=true` and `effective_seconds=30`.
 
 ## Input Behavior
 
 The action reads:
 
-- required `message`
-- optional `prefix`
-- optional `suffix`
-- optional `uppercase`
+- optional `enabled`
+- optional `minutes`
+- optional `seconds`
+- optional `label`
 
 The output surface is:
 
-- `rendered-message`
+- `waited`
+- `effective_seconds`
 
-## Rendering Example
+## Duration Precedence
 
 ```yaml
-- uses: akitorahayashi/act-tmpl@v1
+- uses: akitorahayashi/wait@v1
   with:
-    message: world
-    prefix: hello
-    suffix: again
-    uppercase: true
+    minutes: 2
+    seconds: 15
 ```
 
-The emitted output in this example is `HELLO WORLD AGAIN`.
+In this example, `seconds` is authoritative and the effective duration is 15 seconds.
+
+## Skip Behavior
+
+The action completes without waiting when either condition is true:
+
+- `enabled` resolves to `false`
+- `effective_seconds` resolves to `0`
+
+Outputs still report the resolved state.
+
+## Cancellation Behavior
+
+When GitHub Actions cancellation sends `SIGINT` or `SIGTERM`, the running wait is interrupted promptly.
+The action does not report a normal completed wait after cancellation.
 
 ## Local Verification
 

@@ -2,7 +2,7 @@
 
 ## Scope
 
-`act-tmpl` is a single-action template repository. The active runtime surface is the GitHub Action contract in `action.yml`, the TypeScript boundaries under `src/`, and the release-managed package output in `dist/`.
+`wait` is a single-action repository. The active runtime surface is the GitHub Action contract in `action.yml`, the TypeScript boundaries under `src/`, and the release-managed package output in `dist/`.
 
 ## Local Verification
 

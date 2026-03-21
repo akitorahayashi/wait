@@ -1,45 +1,35 @@
-# act-tmpl
+# wait
 
-`act-tmpl` is a TypeScript GitHub Action template repository. It ships a minimal but complete action that renders a message from inputs and emits the rendered value as an action output.
+`wait` is a TypeScript GitHub Action that resolves one effective duration and performs one cancellation-aware wait.
 
-The repository demonstrates a reusable delivery foundation:
+The action contract is intentionally small:
 
-- release-managed `dist/` packaging on `main`
-- split reusable workflows under `.github/workflows/`
-- `just` as the local task surface
-- runtime boundaries organized as `index -> action -> app -> domain`
+- inputs: `enabled`, `minutes`, `seconds`, `label`
+- outputs: `waited`, `effective_seconds`
 
 ## Quick Start
 
 ```yaml
-- uses: akitorahayashi/act-tmpl@v1
+- uses: akitorahayashi/wait@v1
   with:
-    message: hello world
-    prefix: greeting
-    suffix: done
-    uppercase: false
+    enabled: true
+    seconds: 30
+    label: post-deploy cooldown
 ```
 
 ## Action Contract
 
-Inputs:
+Inputs: `enabled`, `minutes`, `seconds`, `label`
 
-- `message` (required)
-- `prefix` (optional)
-- `suffix` (optional)
-- `uppercase` (optional, default: false)
-
-Outputs:
-
-- `rendered-message`
+Outputs: `waited`, `effective_seconds`
 
 ## Runtime Flow
 
 1. Read inputs from the GitHub Actions boundary.
-2. Normalize inputs into an action request.
-3. Render a final string in the app and domain boundaries.
-4. Emit `rendered-message`.
-5. Log the rendered value.
+2. Resolve one effective duration with input validation.
+3. Skip when disabled or when effective duration is zero.
+4. Perform one cancellation-aware wait when duration is positive.
+5. Emit `waited` and `effective_seconds`.
 
 ## Documentation
 
