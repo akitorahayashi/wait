@@ -25643,7 +25643,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1729:
+/***/ 8340:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25682,135 +25682,242 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.readRequiredInput = readRequiredInput;
-exports.readOptionalInput = readOptionalInput;
+exports.emitOutputs = emitOutputs;
 const core = __importStar(__nccwpck_require__(7484));
-function readRequiredInput(name) {
-    const value = core.getInput(name);
-    if (!value || value.trim().length === 0) {
-        throw new Error(`Input '${name}' is required.`);
+function emitOutputs(result) {
+    core.setOutput('waited', result.waited);
+    core.setOutput('effective_seconds', result.effectiveSeconds);
+}
+
+
+/***/ }),
+
+/***/ 2316:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-    return value.trim();
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readInputs = readInputs;
+const core = __importStar(__nccwpck_require__(7484));
+const wait_request_1 = __nccwpck_require__(1971);
+function readInputs() {
+    return (0, wait_request_1.normalizeWaitRequest)({
+        enabled: readOptionalInput('enabled'),
+        minutes: readOptionalInput('minutes'),
+        seconds: readOptionalInput('seconds'),
+        label: readOptionalInput('label'),
+    });
 }
 function readOptionalInput(name) {
     const value = core.getInput(name);
-    if (!value || value.trim().length === 0) {
-        return undefined;
-    }
-    return value.trim();
+    const normalized = value.trim();
+    return normalized.length === 0 ? undefined : normalized;
 }
 
 
 /***/ }),
 
-/***/ 8948:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.emitRenderedMessageOutput = emitRenderedMessageOutput;
-const core = __importStar(__nccwpck_require__(7484));
-function emitRenderedMessageOutput(renderedMessage) {
-    core.setOutput('rendered-message', renderedMessage);
-}
-
-
-/***/ }),
-
-/***/ 1235:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveActionRequest = resolveActionRequest;
-const inputs_1 = __nccwpck_require__(1729);
-function resolveActionRequest() {
-    return {
-        message: (0, inputs_1.readRequiredInput)('message'),
-        prefix: (0, inputs_1.readOptionalInput)('prefix'),
-        suffix: (0, inputs_1.readOptionalInput)('suffix'),
-        uppercase: parseBooleanFlag((0, inputs_1.readOptionalInput)('uppercase')),
-    };
-}
-function parseBooleanFlag(value) {
-    if (!value) {
-        return false;
-    }
-    switch (value.toLowerCase()) {
-        case '1':
-        case 'true':
-        case 'yes':
-        case 'on':
-            return true;
-        default:
-            return false;
-    }
-}
-
-
-/***/ }),
-
-/***/ 9601:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.renderMessage = renderMessage;
-const message_template_1 = __nccwpck_require__(9290);
-function renderMessage(request) {
-    return (0, message_template_1.renderMessageTemplate)(request);
-}
-
-
-/***/ }),
-
-/***/ 9290:
+/***/ 832:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.renderMessageTemplate = renderMessageTemplate;
-function renderMessageTemplate(template) {
-    const fragments = [template.prefix, template.message, template.suffix].filter((fragment) => typeof fragment === 'string' && fragment.length > 0);
-    const rendered = fragments.join(' ');
-    return template.uppercase ? rendered.toUpperCase() : rendered;
+exports.WaitCancelledError = void 0;
+exports.cancellationAwareDelay = cancellationAwareDelay;
+class WaitCancelledError extends Error {
+    signal;
+    constructor(signal) {
+        super(`Wait cancelled by ${signal}.`);
+        this.name = 'WaitCancelledError';
+        this.signal = signal;
+    }
+}
+exports.WaitCancelledError = WaitCancelledError;
+async function cancellationAwareDelay(seconds) {
+    if (seconds <= 0) {
+        return;
+    }
+    await new Promise((resolve, reject) => {
+        let timeout;
+        let settled = false;
+        const cleanup = () => {
+            if (timeout !== undefined) {
+                clearTimeout(timeout);
+            }
+            process.off('SIGINT', onSigint);
+            process.off('SIGTERM', onSigterm);
+        };
+        const rejectWithError = (error) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            cleanup();
+            reject(error);
+        };
+        const onSignal = (signal) => {
+            rejectWithError(new WaitCancelledError(signal));
+        };
+        const onSigint = () => onSignal('SIGINT');
+        const onSigterm = () => onSignal('SIGTERM');
+        try {
+            process.on('SIGINT', onSigint);
+            process.on('SIGTERM', onSigterm);
+        }
+        catch {
+            rejectWithError(new Error('Failed to install cancellation handlers.'));
+            return;
+        }
+        try {
+            timeout = setTimeout(() => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                cleanup();
+                resolve();
+            }, seconds * 1000);
+        }
+        catch {
+            rejectWithError(new Error('Failed to start wait timer.'));
+        }
+    });
+}
+
+
+/***/ }),
+
+/***/ 9811:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.executeWait = executeWait;
+async function executeWait(request, dependencies) {
+    const labelSegment = request.label ? ` label=${request.label}` : '';
+    if (!request.enabled) {
+        dependencies.log(`Skipping wait because enabled=false. effective_seconds=${request.effectiveSeconds}${labelSegment}`);
+        return { waited: false, effectiveSeconds: request.effectiveSeconds };
+    }
+    if (request.effectiveSeconds === 0) {
+        dependencies.log(`Skipping wait because effective_seconds=0.${labelSegment}`);
+        return { waited: false, effectiveSeconds: request.effectiveSeconds };
+    }
+    dependencies.log(`Starting wait for ${request.effectiveSeconds} second(s).${labelSegment}`);
+    await dependencies.delay(request.effectiveSeconds);
+    dependencies.log(`Wait completed after ${request.effectiveSeconds} second(s).${labelSegment}`);
+    return { waited: true, effectiveSeconds: request.effectiveSeconds };
+}
+
+
+/***/ }),
+
+/***/ 4678:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveEffectiveSeconds = resolveEffectiveSeconds;
+const MAX_EFFECTIVE_SECONDS = 2_147_483;
+function resolveEffectiveSeconds(inputs) {
+    const effectiveSeconds = resolveWithoutBound(inputs);
+    if (effectiveSeconds > MAX_EFFECTIVE_SECONDS) {
+        throw new Error(`Duration must be <= ${MAX_EFFECTIVE_SECONDS} seconds.`);
+    }
+    return effectiveSeconds;
+}
+function resolveWithoutBound(inputs) {
+    if (inputs.seconds !== undefined) {
+        return parseNonNegativeInteger('seconds', inputs.seconds);
+    }
+    if (inputs.minutes !== undefined) {
+        return parseNonNegativeInteger('minutes', inputs.minutes) * 60;
+    }
+    return 0;
+}
+function parseNonNegativeInteger(name, value) {
+    if (!/^\d+$/.test(value)) {
+        throw new Error(`Input '${name}' must be a non-negative integer.`);
+    }
+    return Number.parseInt(value, 10);
+}
+
+
+/***/ }),
+
+/***/ 1971:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.normalizeWaitRequest = normalizeWaitRequest;
+const duration_1 = __nccwpck_require__(4678);
+function normalizeWaitRequest(raw) {
+    return {
+        enabled: parseBooleanInput(raw.enabled, true, 'enabled'),
+        effectiveSeconds: (0, duration_1.resolveEffectiveSeconds)({
+            minutes: raw.minutes,
+            seconds: raw.seconds,
+        }),
+        label: normalizeLabel(raw.label),
+    };
+}
+function parseBooleanInput(value, defaultValue, name) {
+    if (value === undefined) {
+        return defaultValue;
+    }
+    const normalizedValue = value.toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalizedValue)) {
+        return true;
+    }
+    if (['0', 'false', 'no', 'off'].includes(normalizedValue)) {
+        return false;
+    }
+    throw new Error(`Input '${name}' must be a recognized boolean value.`);
+}
+function normalizeLabel(value) {
+    if (value === undefined) {
+        return undefined;
+    }
+    return value.length === 0 ? undefined : value;
 }
 
 
@@ -25856,23 +25963,42 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
-const outputs_1 = __nccwpck_require__(8948);
-const request_1 = __nccwpck_require__(1235);
-const render_message_1 = __nccwpck_require__(9601);
+const emit_outputs_1 = __nccwpck_require__(8340);
+const read_inputs_1 = __nccwpck_require__(2316);
+const cancellation_aware_delay_1 = __nccwpck_require__(832);
+const execute_wait_1 = __nccwpck_require__(9811);
 async function run() {
-    const request = (0, request_1.resolveActionRequest)();
-    const renderedMessage = (0, render_message_1.renderMessage)(request);
-    (0, outputs_1.emitRenderedMessageOutput)(renderedMessage);
-    core.debug('Rendered message generated successfully.');
+    const request = (0, read_inputs_1.readInputs)();
+    const result = await (0, execute_wait_1.executeWait)(request, {
+        delay: cancellation_aware_delay_1.cancellationAwareDelay,
+        log: core.info,
+    });
+    (0, emit_outputs_1.emitOutputs)(result);
+    core.debug('Wait action completed.');
 }
 if (require.main === require.cache[eval('__filename')]) {
     run().catch((error) => {
+        if (error instanceof cancellation_aware_delay_1.WaitCancelledError) {
+            core.notice(error.message);
+            process.exitCode = signalExitCode(error.signal);
+            return;
+        }
         if (error instanceof Error) {
             core.setFailed(error.message);
             return;
         }
         core.setFailed(String(error));
     });
+}
+function signalExitCode(signal) {
+    switch (signal) {
+        case 'SIGINT':
+            return 130;
+        case 'SIGTERM':
+            return 143;
+        default:
+            return 1;
+    }
 }
 
 

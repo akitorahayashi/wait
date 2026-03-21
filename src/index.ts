@@ -21,7 +21,8 @@ async function run(): Promise<void> {
 if (require.main === module) {
   run().catch((error: unknown) => {
     if (error instanceof WaitCancelledError) {
-      core.setFailed(error.message)
+      core.notice(error.message)
+      process.exitCode = signalExitCode(error.signal)
       return
     }
 
@@ -31,4 +32,15 @@ if (require.main === module) {
     }
     core.setFailed(String(error))
   })
+}
+
+function signalExitCode(signal: NodeJS.Signals): number {
+  switch (signal) {
+    case 'SIGINT':
+      return 130
+    case 'SIGTERM':
+      return 143
+    default:
+      return 1
+  }
 }
