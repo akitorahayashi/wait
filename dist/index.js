@@ -25842,7 +25842,7 @@ exports.executeWait = executeWait;
 async function executeWait(request, dependencies) {
     const labelSegment = request.label ? ` label=${request.label}` : '';
     if (!request.enabled) {
-        dependencies.log(`Skipping wait because enabled=false. effective_seconds=${request.effectiveSeconds}${labelSegment}`);
+        dependencies.log(`Skipping wait because enabled=false. effective_seconds=${request.effectiveSeconds}${labelSegment}.`);
         return { waited: false, effectiveSeconds: request.effectiveSeconds };
     }
     if (request.effectiveSeconds === 0) {
@@ -25871,7 +25871,7 @@ function resolveEffectiveSeconds(inputs) {
         return parseNonNegativeInteger('seconds', inputs.seconds);
     }
     if (inputs.minutes !== undefined) {
-        return parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE;
+        return (parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE);
     }
     return 0;
 }
