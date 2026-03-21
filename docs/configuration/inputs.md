@@ -1,13 +1,13 @@
 # Inputs
 
-`act-tmpl` defines these inputs in `action.yml`:
+`wait` defines these inputs in `action.yml`:
 
 | Input | Required | Default | Meaning |
 |------|----------|---------|---------|
-| `message` | yes | none | Base message text to render |
-| `prefix` | no | empty | Optional text inserted before the message |
-| `suffix` | no | empty | Optional text appended after the message |
-| `uppercase` | no | empty | Optional flag (`true`, `1`, `yes`, `on`) to uppercase the rendered value |
+| `enabled` | no | `true` | Optional boolean flag controlling whether waiting is active |
+| `minutes` | no | none | Optional non-negative integer minutes used only when `seconds` is omitted |
+| `seconds` | no | none | Optional non-negative integer seconds, authoritative when provided |
+| `label` | no | empty | Optional descriptive text included in logs |
 
 ## Outputs
 
@@ -15,9 +15,18 @@ The action emits:
 
 | Output | Meaning |
 |--------|---------|
-| `rendered-message` | Final rendered message after prefix/suffix composition and optional uppercasing |
+| `waited` | Boolean flag indicating whether a positive-duration wait was executed |
+| `effective_seconds` | Resolved wait duration in seconds |
 
-## Boolean Semantics
+## Resolution Semantics
 
-`uppercase` resolves to `false` when absent or when its value is not one of the supported truthy tokens.
+- `seconds` is authoritative when provided.
+- `minutes` is converted to seconds only when `seconds` is absent.
+- omitting both duration inputs resolves to `effective_seconds=0`.
+
+## Validation Semantics
+
+- `enabled` must be one of: `true`, `false`, `1`, `0`, `yes`, `no`, `on`, `off`.
+- `minutes` and `seconds` must be non-negative integers.
+- invalid values fail explicitly.
 

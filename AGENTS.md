@@ -1,6 +1,6 @@
-# act-tmpl
+# wait
 
-`act-tmpl` is a TypeScript GitHub Action template repository.
+`wait` is a TypeScript GitHub Action repository.
 The public action contract is defined in `action.yml`.
 The runtime entrypoint for GitHub Actions is `dist/index.js`.
 The authored implementation lives under `src/`.
@@ -8,10 +8,12 @@ The authored implementation lives under `src/`.
 ## Repository Layout
 
 `src/index.ts` bootstraps the action runtime.
-`src/action/` owns input reading, output emission, and request normalization.
-`src/app/` owns use-case orchestration.
-`src/domain/` owns pure message rendering logic.
+`src/action/` owns input reading and output emission.
+`src/app/` owns wait use-case orchestration.
+`src/domain/` owns pure duration and wait request/result logic.
+`src/adapters/` owns runtime cancellation-aware waiting.
 `tests/action/`, `tests/app/`, and `tests/domain/` verify boundary behavior.
+`tests/adapters/` verifies runtime adapter behavior.
 `docs/` contains usage, configuration, and architecture documentation.
 `.github/workflows/` contains CI and release automation.
 

@@ -1,7 +1,7 @@
 {
-  "name": "act-tmpl",
+  "name": "wait",
   "version": "0.1.0",
-  "description": "TypeScript GitHub Action template repository",
+  "description": "Cancellation-aware wait GitHub Action",
   "private": true,
   "license": "UNLICENSED",
   "engines": {

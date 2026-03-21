@@ -1,22 +1,23 @@
-name: act-tmpl
-description: Render a message from action inputs
+name: wait
+description: Wait for a configured duration with cancellation-aware interruption
 inputs:
-  message:
-    description: Base message text to render
-    required: true
-  prefix:
-    description: Optional prefix inserted before the message
+  enabled:
+    description: Optional boolean flag to enable or disable waiting
     required: false
-  suffix:
-    description: Optional suffix appended after the message
+  minutes:
+    description: Optional non-negative integer duration in minutes when seconds is omitted
     required: false
-  uppercase:
-    description: Optional flag to convert the rendered message to uppercase
+  seconds:
+    description: Optional non-negative integer duration in seconds
     required: false
-    default: false
+  label:
+    description: Optional descriptive label included in logs
+    required: false
 outputs:
-  rendered-message:
-    description: Final rendered message output
+  waited:
+    description: Boolean flag indicating whether a positive-duration wait completed
+  effective_seconds:
+    description: Resolved effective wait duration in seconds
 runs:
   using: node24
   main: dist/index.js
