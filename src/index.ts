@@ -7,7 +7,7 @@ import {
 } from './adapters/cancellation-aware-delay'
 import { executeWait } from './app/execute-wait'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   const request = readInputs()
   const result = await executeWait(request, {
     delay: cancellationAwareDelay,
@@ -18,23 +18,21 @@ async function run(): Promise<void> {
   core.debug('Wait action completed.')
 }
 
-if (require.main === module) {
-  run().catch((error: unknown) => {
-    if (error instanceof WaitCancelledError) {
-      core.notice(error.message)
-      process.exitCode = signalExitCode(error.signal)
-      return
-    }
+export function handleError(error: unknown): void {
+  if (error instanceof WaitCancelledError) {
+    core.notice(error.message)
+    process.exitCode = signalExitCode(error.signal)
+    return
+  }
 
-    if (error instanceof Error) {
-      core.setFailed(error.message)
-      return
-    }
-    core.setFailed(String(error))
-  })
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+    return
+  }
+  core.setFailed(String(error))
 }
 
-function signalExitCode(signal: NodeJS.Signals): number {
+export function signalExitCode(signal: NodeJS.Signals): number {
   switch (signal) {
     case 'SIGINT':
       return 130
@@ -43,4 +41,8 @@ function signalExitCode(signal: NodeJS.Signals): number {
     default:
       return 1
   }
+}
+
+if (require.main === module) {
+  run().catch(handleError)
 }
