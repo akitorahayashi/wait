@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   WaitCancelledError,
-  cancellationAwareDelay,
-} from '../../src/adapters/cancellation-aware-delay'
+  cancellationAwareWait,
+} from '../../src/adapters/cancellation-aware-wait'
 
 function captureSignalHandlers(): {
   handlers: Map<NodeJS.Signals, () => void>
@@ -36,7 +36,7 @@ function captureSignalHandlers(): {
   }
 }
 
-describe('cancellationAwareDelay', () => {
+describe('cancellationAwareWait', () => {
   afterEach(() => {
     vi.useRealTimers()
   })
@@ -44,7 +44,7 @@ describe('cancellationAwareDelay', () => {
   it('resolves after the requested duration', async () => {
     vi.useFakeTimers()
 
-    const waitPromise = cancellationAwareDelay(2)
+    const waitPromise = cancellationAwareWait(2)
     await vi.advanceTimersByTimeAsync(2000)
 
     await expect(waitPromise).resolves.toBeUndefined()
@@ -55,7 +55,7 @@ describe('cancellationAwareDelay', () => {
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
+      const waitPromise = cancellationAwareWait(60)
       const handler = handlers.get('SIGINT')
 
       expect(handler).toBeTypeOf('function')
@@ -73,7 +73,7 @@ describe('cancellationAwareDelay', () => {
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
+      const waitPromise = cancellationAwareWait(60)
       const handler = handlers.get('SIGTERM')
 
       expect(handler).toBeTypeOf('function')

@@ -1,4 +1,4 @@
 export interface ExecuteWaitDependencies {
-  delay: (seconds: number) => Promise<void>
+  wait: (seconds: number) => Promise<void>
   log: (message: string) => void
 }

@@ -9,9 +9,9 @@ export class WaitCancelledError extends Error {
 }
 
 const MILLISECONDS_PER_SECOND = 1000
-const SECONDS_PER_DELAY_CHUNK = 60
+const SECONDS_PER_WAIT_CHUNK = 60
 
-export async function cancellationAwareDelay(seconds: number): Promise<void> {
+export async function cancellationAwareWait(seconds: number): Promise<void> {
   if (seconds <= 0) {
     return
   }
@@ -65,7 +65,7 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
         return
       }
 
-      const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_DELAY_CHUNK)
+      const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_WAIT_CHUNK)
       remainingSeconds -= chunkSeconds
       try {
         timeout = setTimeout(
