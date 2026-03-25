@@ -9,6 +9,8 @@ function captureSignalHandlers(): {
   restore: () => void
 } {
   const handlers = new Map<NodeJS.Signals, () => void>()
+  const originalOn = process.on.bind(process)
+  const originalOff = process.off.bind(process)
 
   const onSpy = vi.spyOn(process, 'on').mockImplementation(((
     event,
@@ -16,15 +18,20 @@ function captureSignalHandlers(): {
   ) => {
     if (event === 'SIGINT' || event === 'SIGTERM') {
       handlers.set(event, listener as () => void)
+      return process
     }
-    return process
+    return originalOn(event, listener)
   }) as typeof process.on)
 
-  const offSpy = vi.spyOn(process, 'off').mockImplementation(((event) => {
+  const offSpy = vi.spyOn(process, 'off').mockImplementation(((
+    event,
+    listener,
+  ) => {
     if (event === 'SIGINT' || event === 'SIGTERM') {
       handlers.delete(event)
+      return process
     }
-    return process
+    return originalOff(event, listener)
   }) as typeof process.off)
 
   return {
@@ -39,6 +46,14 @@ function captureSignalHandlers(): {
 describe('cancellationAwareDelay', () => {
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  it.each([
+    { duration: 0, description: 'is 0' },
+    { duration: -5, description: 'is negative' },
+  ])('resolves immediately if duration $description', async ({ duration }) => {
+    const waitPromise = cancellationAwareDelay(duration)
+    await expect(waitPromise).resolves.toBeUndefined()
   })
 
   it('resolves after the requested duration', async () => {
@@ -75,6 +90,37 @@ describe('cancellationAwareDelay', () => {
     try {
       const waitPromise = cancellationAwareDelay(60)
       const handler = handlers.get('SIGTERM')
+
+      expect(handler).toBeTypeOf('function')
+      handler?.()
+
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      restore()
+    }
+  })
+
+  it('resolves correctly for chunked delays longer than 60 seconds', async () => {
+    vi.useFakeTimers()
+
+    const waitPromise = cancellationAwareDelay(150) // 60s + 60s + 30s
+    await vi.advanceTimersByTimeAsync(60_000)
+    await vi.advanceTimersByTimeAsync(60_000)
+    await vi.advanceTimersByTimeAsync(30_000)
+
+    await expect(waitPromise).resolves.toBeUndefined()
+  })
+
+  it('cancels properly during a subsequent chunk of a long delay', async () => {
+    vi.useFakeTimers()
+    const { handlers, restore } = captureSignalHandlers()
+
+    try {
+      const waitPromise = cancellationAwareDelay(150)
+      await vi.advanceTimersByTimeAsync(60_000)
+
+      const handler = handlers.get('SIGINT')
 
       expect(handler).toBeTypeOf('function')
       handler?.()
@@ -128,6 +174,57 @@ describe('cancellationAwareDelay', () => {
         expect((error as Error).cause).toBe(mockError)
       }
     } finally {
+      setTimeoutSpy.mockRestore()
+    }
+  })
+
+  it('ignores duplicate cancellation signals', async () => {
+    vi.useFakeTimers()
+    const { handlers, restore } = captureSignalHandlers()
+
+    try {
+      const waitPromise = cancellationAwareDelay(60)
+      const handler = handlers.get('SIGINT')
+
+      expect(handler).toBeTypeOf('function')
+      handler?.()
+      handler?.()
+
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      restore()
+    }
+  })
+
+  it('ignores subsequent chunk scheduling after wait is cancelled', async () => {
+    vi.useFakeTimers()
+    const { handlers, restore } = captureSignalHandlers()
+
+    let capturedScheduleNextChunk: (() => void) | undefined
+    const setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation(((
+      callback: () => void,
+    ) => {
+      capturedScheduleNextChunk = callback
+      return 123 as unknown as NodeJS.Timeout
+    }) as typeof setTimeout)
+
+    try {
+      const waitPromise = cancellationAwareDelay(150)
+
+      const handler = handlers.get('SIGINT')
+      expect(handler).toBeTypeOf('function')
+
+      handler?.()
+
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
+
+      expect(capturedScheduleNextChunk).toBeTypeOf('function')
+      capturedScheduleNextChunk?.()
+
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      restore()
       setTimeoutSpy.mockRestore()
     }
   })
