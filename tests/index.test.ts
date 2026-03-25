@@ -28,7 +28,7 @@ vi.mock('../src/app/execute-wait', () => ({
 describe('index bootstrap', () => {
   describe('run', () => {
     it('should read inputs, execute wait, and emit outputs', async () => {
-      const mockRequest = { enabled: true, minutes: 1, seconds: 0, label: '' }
+      const mockRequest = { enabled: true, minutes: 1, seconds: 0, label: '', effectiveSeconds: 60 }
       const mockResult = { waited: true, effectiveSeconds: 60 }
 
       vi.mocked(readInputs).mockReturnValue(mockRequest)
@@ -44,7 +44,7 @@ describe('index bootstrap', () => {
   })
 
   describe('handleError', () => {
-    let originalExitCode: number | undefined
+    let originalExitCode: string | number | null | undefined
 
     beforeEach(() => {
       originalExitCode = process.exitCode
@@ -52,7 +52,11 @@ describe('index bootstrap', () => {
     })
 
     afterEach(() => {
-      process.exitCode = originalExitCode
+      if (typeof originalExitCode === 'number') {
+        process.exitCode = originalExitCode
+      } else {
+        process.exitCode = undefined
+      }
       vi.clearAllMocks()
     })
 
