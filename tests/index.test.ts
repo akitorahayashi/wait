@@ -28,7 +28,13 @@ vi.mock('../src/app/execute-wait', () => ({
 describe('index bootstrap', () => {
   describe('run', () => {
     it('should read inputs, execute wait, and emit outputs', async () => {
-      const mockRequest = { enabled: true, minutes: 1, seconds: 0, label: '', effectiveSeconds: 60 }
+      const mockRequest = {
+        enabled: true,
+        minutes: 1,
+        seconds: 0,
+        label: '',
+        effectiveSeconds: 60,
+      }
       const mockResult = { waited: true, effectiveSeconds: 60 }
 
       vi.mocked(readInputs).mockReturnValue(mockRequest)
