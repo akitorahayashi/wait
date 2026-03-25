@@ -85,4 +85,50 @@ describe('cancellationAwareDelay', () => {
       restore()
     }
   })
+
+  it('preserves the original error when process.on fails', async () => {
+    vi.useFakeTimers()
+    const mockError = new Error('simulated process.on failure')
+    const onSpy = vi.spyOn(process, 'on').mockImplementation(() => {
+      throw mockError
+    })
+
+    try {
+      const waitPromise = cancellationAwareDelay(2)
+      await expect(waitPromise).rejects.toThrow(
+        'Failed to install cancellation handlers.',
+      )
+
+      try {
+        await waitPromise
+      } catch (error) {
+        expect((error as Error).cause).toBe(mockError)
+      }
+    } finally {
+      onSpy.mockRestore()
+    }
+  })
+
+  it('preserves the original error when setTimeout fails', async () => {
+    vi.useFakeTimers()
+    const mockError = new Error('simulated setTimeout failure')
+    const setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation(() => {
+      throw mockError
+    })
+
+    try {
+      const waitPromise = cancellationAwareDelay(2)
+      await expect(waitPromise).rejects.toThrow(
+        'Failed to start wait timer.',
+      )
+
+      try {
+        await waitPromise
+      } catch (error) {
+        expect((error as Error).cause).toBe(mockError)
+      }
+    } finally {
+      setTimeoutSpy.mockRestore()
+    }
+  })
 })

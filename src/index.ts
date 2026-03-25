@@ -34,13 +34,11 @@ if (require.main === module) {
   })
 }
 
-function signalExitCode(signal: NodeJS.Signals): number {
+function signalExitCode(signal: 'SIGINT' | 'SIGTERM'): number {
   switch (signal) {
     case 'SIGINT':
       return 130
     case 'SIGTERM':
       return 143
-    default:
-      return 1
   }
 }
