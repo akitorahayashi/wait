@@ -1,17 +1,15 @@
 ---
 label: "tests"
-created_at: "2024-03-25"
-author_role: "cov"
-confidence: "high"
+implementation_ready: false
 ---
-
-## Problem
-
-The `src/index.ts` bootstrap file has 0% coverage. While bootstrapping code is often excluded, its error handling—specifically how `WaitCancelledError` and generic errors translate into GitHub Action notices and exit codes—is critical to the reliability of the action. Without coverage, changes could easily break the contract of correctly reporting wait cancellations versus fatal errors.
 
 ## Goal
 
 Add testing for the top-level execution paths, verifying that `run()` sets the correct outputs and that unhandled rejections result in appropriate exit codes and error logs. Alternatively, encapsulate the exit-code logic in an explicitly tested module and keep `index.ts` purely declarative.
+
+## Problem
+
+The `src/index.ts` bootstrap file has 0% coverage. While bootstrapping code is often excluded, its error handling—specifically how `WaitCancelledError` and generic errors translate into GitHub Action notices and exit codes—is critical to the reliability of the action. Without coverage, changes could easily break the contract of correctly reporting wait cancellations versus fatal errors.
 
 ## Context
 
@@ -19,7 +17,8 @@ Add testing for the top-level execution paths, verifying that `run()` sets the c
 
 ## Evidence
 
-- path: "src/index.ts"
+- source_event: "index_bootstrap_coverage_cov.md"
+  path: "src/index.ts"
   loc: "1-46"
   note: "The entire file is reported as 0% coverage. Lines 24-46 define critical logic for translating runtime errors into process exit states, which must be verified."
 
@@ -27,3 +26,13 @@ Add testing for the top-level execution paths, verifying that `run()` sets the c
 
 - `src/index.ts`
 - `tests/index.test.ts` (new)
+
+## Constraints
+
+- Ensure no regressions in existing functionality.
+- Adhere to the principles defined in the root context.
+
+## Acceptance Criteria
+
+- The goals specified are fully achieved.
+- The problems described are completely resolved.
