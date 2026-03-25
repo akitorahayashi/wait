@@ -1,6 +1,6 @@
 ---
 label: "tests"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -19,19 +19,19 @@ The tests for the `readInputs` action adapter redundantly test domain-layer logi
 
 - source_event: "redundant_domain_validation_in_action_qa.md"
   path: "tests/action/read-inputs.test.ts"
-  loc: "54-63"
+  loc: "64-72"
   note: "Test `parses false enabled values` tests the string parsing of `off`, which is already handled in `normalizeWaitRequest`."
 - source_event: "redundant_domain_validation_in_action_qa.md"
   path: "tests/action/read-inputs.test.ts"
-  loc: "65-74"
+  loc: "74-82"
   note: "Test `trims labels and keeps non-empty values` duplicates testing of empty label handling."
 - source_event: "redundant_domain_validation_in_action_qa.md"
   path: "tests/action/read-inputs.test.ts"
-  loc: "76-87"
+  loc: "84-93"
   note: "Test `fails for unrecognized boolean values` re-tests error throwing for unrecognized tokens."
 - source_event: "redundant_domain_validation_in_action_qa.md"
   path: "tests/action/read-inputs.test.ts"
-  loc: "26-52"
+  loc: "26-62"
   note: "Tests for authoritative duration sources and minute conversions are re-testing `resolveEffectiveSeconds`."
 
 ## Change Scope

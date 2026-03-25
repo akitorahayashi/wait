@@ -1,6 +1,6 @@
 ---
 label: "tests"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -19,8 +19,8 @@ The `src/index.ts` bootstrap file has 0% coverage. While bootstrapping code is o
 
 - source_event: "index_bootstrap_coverage_cov.md"
   path: "src/index.ts"
-  loc: "1-46"
-  note: "The entire file is reported as 0% coverage. Lines 24-46 define critical logic for translating runtime errors into process exit states, which must be verified."
+  loc: "1-41"
+  note: "The entire file is reported as 0% coverage. Lines 19-41 define critical logic for translating runtime errors into process exit states, which must be verified."
 
 ## Change Scope
 
