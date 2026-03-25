@@ -1,6 +1,6 @@
 ---
 label: "docs"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -19,7 +19,7 @@ GitHub Actions UI and runner context rely entirely on `action.yml` for input met
 
 - source_event: "missing_action_default_consistency.md"
   path: "action.yml"
-  loc: "4-6"
+  loc: "3-5"
   note: "The `enabled` input defines `required: false` but lacks a `default: 'true'` field."
 - source_event: "missing_action_default_consistency.md"
   path: "docs/configuration.md"

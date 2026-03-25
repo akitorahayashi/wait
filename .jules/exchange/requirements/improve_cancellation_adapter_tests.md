@@ -1,6 +1,6 @@
 ---
 label: "tests"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -25,33 +25,33 @@ The `cancellationAwareDelay` adapter contains an internal loop (`scheduleNextChu
 
 In `tests/adapters/cancellation-aware-delay.test.ts`, the `captureSignalHandlers` function uses `vi.spyOn(process, 'on').mockImplementation(...)`. If the event is not `SIGINT` or `SIGTERM`, it simply returns `process` without actually registering the listener with the real `process.on`. This can cause unpredictable and flaky behavior in tests if the test runner (like vitest) or other parts of the Node process attempt to register event listeners (e.g., for `uncaughtException`, `unhandledRejection`, `exit`, etc.) while the mock is active. The original behavior must be preserved for any unrelated event.
 
-The coverage report clearly shows that lines 48-54 (signal handler installation try-catch), 58-59 (scheduleNextChunk early return for settled state), and 76-77 (setTimeout try-catch) in `src/adapters/cancellation-aware-delay.ts` are uncovered. Given that this code is an adapter at the boundary of the Node.js event loop and specifically deals with cancellation, verifying its error paths is critical to prevent hangs in the GitHub Action environment.
+The coverage report clearly shows that lines 49-55 (signal handler installation try-catch), 57-59 (scheduleNextChunk early return for settled state), and 76-83 (setTimeout try-catch) in `src/adapters/cancellation-aware-delay.ts` are uncovered. Given that this code is an adapter at the boundary of the Node.js event loop and specifically deals with cancellation, verifying its error paths is critical to prevent hangs in the GitHub Action environment.
 
 ## Evidence
 
 - source_event: "missing_chunked_delay_coverage_qa.md"
   path: "tests/adapters/cancellation-aware-delay.test.ts"
-  loc: "44-51"
+  loc: "39-46"
   note: "Test `resolves after the requested duration` only tests a 2-second delay."
 - source_event: "missing_chunked_delay_coverage_qa.md"
   path: "tests/adapters/cancellation-aware-delay.test.ts"
-  loc: "53-69"
+  loc: "48-61"
   note: "Test `cancels promptly on SIGINT` only tests a 60-second delay (the exact chunk size), never triggering the >60s loop condition."
 - source_event: "missing_chunked_delay_coverage_qa.md"
   path: "tests/adapters/cancellation-aware-delay.test.ts"
-  loc: "71-87"
+  loc: "63-76"
   note: "Test `cancels promptly on SIGTERM` also only tests a 60-second delay."
 - source_event: "process_mock_swallows_events_qa.md"
   path: "tests/adapters/cancellation-aware-delay.test.ts"
-  loc: "14-22"
+  loc: "10-18"
   note: "The `onSpy` mock implementation checks if the event is SIGINT or SIGTERM, but returns `process` unconditionally without calling the original `process.on` for other events."
 - source_event: "process_mock_swallows_events_qa.md"
   path: "tests/adapters/cancellation-aware-delay.test.ts"
-  loc: "24-30"
+  loc: "20-25"
   note: "The `offSpy` mock implementation has the same issue, swallowing removal of listeners for all other events."
 - source_event: "cancellation_adapter_coverage_cov.md"
   path: "src/adapters/cancellation-aware-delay.ts"
-  loc: "48-54, 58-59, 76-77"
+  loc: "49-55, 57-59, 76-83"
   note: "Coverage report explicitly marks these lines as uncovered. They represent error handling and early-exit conditions in the delay adapter."
 
 ## Change Scope

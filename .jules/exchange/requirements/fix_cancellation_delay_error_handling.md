@@ -25,11 +25,11 @@ The `typescripter` role explicitly outlines that state should be modeled with di
 
 - source_event: "swallowed_errors_cancellation_delay_typescripter.md"
   path: "src/adapters/cancellation-aware-delay.ts"
-  loc: "44-47"
+  loc: "49-55"
   note: "`process.on` block catches an exception and throws a generic 'Failed to install cancellation handlers.' error without passing or logging the underlying failure."
 - source_event: "swallowed_errors_cancellation_delay_typescripter.md"
   path: "src/adapters/cancellation-aware-delay.ts"
-  loc: "62-67"
+  loc: "76-83"
   note: "`setTimeout` block catches an exception and throws a generic 'Failed to start wait timer.' error, again swallowing the original error."
 - source_event: "broad_signal_type_non_exhaustive_switch_typescripter.md"
   path: "src/adapters/cancellation-aware-delay.ts"
@@ -37,7 +37,7 @@ The `typescripter` role explicitly outlines that state should be modeled with di
   note: "WaitCancelledError declares `signal: NodeJS.Signals` which is overly broad."
 - source_event: "broad_signal_type_non_exhaustive_switch_typescripter.md"
   path: "src/index.ts"
-  loc: "35-43"
+  loc: "34-43"
   note: "`signalExitCode` uses a default case on the broad type instead of an exhaustive switch on a constrained union type."
 
 ## Change Scope

@@ -1,6 +1,6 @@
 ---
 label: "refacts"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -25,11 +25,11 @@ However, the application dependency interface defines a `delay` method (`delay: 
   note: "Defines the dependency as `delay`, conflicting with the use-case name `executeWait`."
 - source_event: "wait_vs_delay_taxonomy.md"
   path: "src/app/execute-wait/index.ts"
-  loc: "line 28"
+  loc: "line 25"
   note: "Calls `await dependencies.delay(request.effectiveSeconds)` while surrounding logs say `Starting wait...` and `Wait completed...`."
 - source_event: "wait_vs_delay_taxonomy.md"
   path: "src/adapters/cancellation-aware-delay.ts"
-  loc: "line 14"
+  loc: "line 12"
   note: "Adapter is named `cancellationAwareDelay` but throws `WaitCancelledError` (line 1), demonstrating terminology drift."
 
 ## Change Scope
