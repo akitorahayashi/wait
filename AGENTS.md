@@ -14,7 +14,7 @@ The authored implementation lives under `src/`.
 `src/adapters/` owns runtime cancellation-aware waiting.
 `tests/action/`, `tests/app/`, and `tests/domain/` verify boundary behavior.
 `tests/adapters/` verifies runtime adapter behavior.
-`docs/` contains usage, configuration, and architecture documentation.
+[docs/](docs/README.md) is the central documentation index for usage, configuration, and architecture.
 `.github/workflows/` contains CI and release automation.
 
 ## Validation

@@ -17,22 +17,8 @@ The action contract is intentionally small:
     label: post-deploy cooldown
 ```
 
-## Action Contract
-
-Inputs: `enabled`, `minutes`, `seconds`, `label`
-
-Outputs: `waited`, `effective_seconds`
-
-## Runtime Flow
-
-1. Read inputs from the GitHub Actions boundary.
-2. Resolve one effective duration with input validation.
-3. Skip when disabled or when effective duration is zero.
-4. Perform one cancellation-aware wait when duration is positive.
-5. Emit `waited` and `effective_seconds`.
-
 ## Documentation
 
 - [Usage](docs/usage.md)
-- [Architecture Boundary](docs/architecture/boundary.md)
-- [Action Inputs](docs/configuration/inputs.md)
+- [Architecture](docs/architecture.md)
+- [Configuration](docs/configuration.md)

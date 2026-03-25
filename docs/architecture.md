@@ -1,16 +1,5 @@
 # Architecture
 
-## Repository Boundary
-
-`wait` is a single-action repository. The repository owns one GitHub Action that resolves a wait duration, performs one cancellation-aware wait when needed, and emits explicit outputs.
-
-The repository surfaces are:
-
-- `action.yml`: public action contract
-- `src/`: TypeScript runtime organized by action, app, domain, and adapters boundaries
-- `dist/`: release-managed package output used by GitHub Actions at tag resolution time
-- `tests/`: repository-owned boundary tests under `tests/action`, `tests/app`, `tests/domain`, and `tests/adapters`
-
 ## Runtime Boundaries
 
 The runtime boundaries are:
