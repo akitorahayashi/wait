@@ -1,31 +1,21 @@
-export interface DurationInputs {
-  minutes?: string
-  seconds?: string
-}
+import { ValidationError } from './validation-error'
+
+export type DurationInput =
+  | { type: 'minutes'; value: number }
+  | { type: 'seconds'; value: number }
+  | { type: 'none' }
 
 const SECONDS_PER_MINUTE = 60
 
-export function resolveEffectiveSeconds(inputs: DurationInputs): number {
-  if (inputs.seconds !== undefined) {
-    return parseNonNegativeInteger('seconds', inputs.seconds)
+export function resolveEffectiveSeconds(input: DurationInput): number {
+  switch (input.type) {
+    case 'seconds':
+      return input.value
+    case 'minutes':
+      return input.value * SECONDS_PER_MINUTE
+    case 'none':
+      throw new ValidationError(
+        'A duration (minutes or seconds) must be specified.',
+      )
   }
-
-  if (inputs.minutes !== undefined) {
-    return (
-      parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE
-    )
-  }
-
-  return 0
-}
-
-function parseNonNegativeInteger(
-  name: 'minutes' | 'seconds',
-  value: string,
-): number {
-  if (!/^\d+$/.test(value)) {
-    throw new Error(`Input '${name}' must be a non-negative integer.`)
-  }
-
-  return Number.parseInt(value, 10)
 }

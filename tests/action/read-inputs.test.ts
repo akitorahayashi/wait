@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as core from '@actions/core'
 import { readInputs } from '../../src/action/read-inputs'
+import { ValidationError } from '../../src/domain/validation-error'
 
 vi.mock('@actions/core', () => ({
   getInput: vi.fn(),
@@ -13,21 +14,18 @@ describe('readInputs', () => {
     mockedGetInput.mockReset()
   })
 
-  it('uses enabled=true and zero duration by default', () => {
+  it('fails when no duration inputs are provided', () => {
     mockedGetInput.mockReturnValue('')
 
-    expect(readInputs()).toEqual({
-      enabled: true,
-      effectiveSeconds: 0,
-      label: undefined,
-    })
+    expect(() => readInputs()).toThrow(ValidationError)
+    expect(() => readInputs()).toThrow(
+      'A duration (minutes or seconds) must be specified.',
+    )
   })
 
-  it('uses seconds as the authoritative duration source', () => {
+  it('fails when both minutes and seconds are provided', () => {
     mockedGetInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'enabled':
-          return 'true'
         case 'minutes':
           return '5'
         case 'seconds':
@@ -37,10 +35,24 @@ describe('readInputs', () => {
       }
     })
 
+    expect(() => readInputs()).toThrow(ValidationError)
+    expect(() => readInputs()).toThrow(
+      'Inputs "minutes" and "seconds" are mutually exclusive.',
+    )
+  })
+
+  it('uses seconds when provided', () => {
+    mockedGetInput.mockImplementation((name: string) => {
+      if (name === 'seconds') {
+        return '12'
+      }
+      return ''
+    })
+
     expect(readInputs().effectiveSeconds).toBe(12)
   })
 
-  it('converts minutes when seconds is omitted', () => {
+  it('converts minutes to seconds', () => {
     mockedGetInput.mockImplementation((name: string) => {
       if (name === 'minutes') {
         return '2'
@@ -56,6 +68,9 @@ describe('readInputs', () => {
       if (name === 'enabled') {
         return 'off'
       }
+      if (name === 'seconds') {
+        return '10'
+      }
       return ''
     })
 
@@ -66,6 +81,9 @@ describe('readInputs', () => {
     mockedGetInput.mockImplementation((name: string) => {
       if (name === 'label') {
         return '  deploy gate  '
+      }
+      if (name === 'seconds') {
+        return '10'
       }
       return ''
     })
@@ -78,15 +96,33 @@ describe('readInputs', () => {
       if (name === 'enabled') {
         return 'sometimes'
       }
+      if (name === 'seconds') {
+        return '10'
+      }
       return ''
     })
 
+    expect(() => readInputs()).toThrow(ValidationError)
     expect(() => readInputs()).toThrow(
       "Input 'enabled' must be a recognized boolean value.",
     )
   })
 
-  it('fails for non-integer durations', () => {
+  it('fails for negative non-integer durations', () => {
+    mockedGetInput.mockImplementation((name: string) => {
+      if (name === 'seconds') {
+        return '-1'
+      }
+      return ''
+    })
+
+    expect(() => readInputs()).toThrow(ValidationError)
+    expect(() => readInputs()).toThrow(
+      "Input 'seconds' must be a non-negative integer.",
+    )
+  })
+
+  it('fails for decimal non-integer durations', () => {
     mockedGetInput.mockImplementation((name: string) => {
       if (name === 'seconds') {
         return '1.5'
@@ -94,6 +130,7 @@ describe('readInputs', () => {
       return ''
     })
 
+    expect(() => readInputs()).toThrow(ValidationError)
     expect(() => readInputs()).toThrow(
       "Input 'seconds' must be a non-negative integer.",
     )

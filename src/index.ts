@@ -6,6 +6,7 @@ import {
   cancellationAwareDelay,
 } from './adapters/cancellation-aware-delay'
 import { executeWait } from './app/execute-wait'
+import { ValidationError } from './domain/validation-error'
 
 async function run(): Promise<void> {
   const request = readInputs()
@@ -26,11 +27,16 @@ if (require.main === module) {
       return
     }
 
-    if (error instanceof Error) {
+    if (error instanceof ValidationError) {
       core.setFailed(error.message)
       return
     }
-    core.setFailed(String(error))
+
+    if (error instanceof Error) {
+      core.setFailed(`Unexpected error: ${error.message}`)
+      return
+    }
+    core.setFailed(`Unexpected error: ${String(error)}`)
   })
 }
 
