@@ -49,7 +49,9 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
       process.on('SIGINT', onSigint)
       process.on('SIGTERM', onSigterm)
     } catch (error) {
-      rejectWithError(new Error('Failed to install cancellation handlers.', { cause: error }))
+      rejectWithError(
+        new Error('Failed to install cancellation handlers.', { cause: error }),
+      )
       return
     }
 
@@ -73,7 +75,9 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
           chunkSeconds * MILLISECONDS_PER_SECOND,
         )
       } catch (error) {
-        rejectWithError(new Error('Failed to start wait timer.', { cause: error }))
+        rejectWithError(
+          new Error('Failed to start wait timer.', { cause: error }),
+        )
       }
     }
 

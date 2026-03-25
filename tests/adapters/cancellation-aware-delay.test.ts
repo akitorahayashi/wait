@@ -112,15 +112,15 @@ describe('cancellationAwareDelay', () => {
   it('preserves the original error when setTimeout fails', async () => {
     vi.useFakeTimers()
     const mockError = new Error('simulated setTimeout failure')
-    const setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation(() => {
-      throw mockError
-    })
+    const setTimeoutSpy = vi
+      .spyOn(global, 'setTimeout')
+      .mockImplementation(() => {
+        throw mockError
+      })
 
     try {
       const waitPromise = cancellationAwareDelay(2)
-      await expect(waitPromise).rejects.toThrow(
-        'Failed to start wait timer.',
-      )
+      await expect(waitPromise).rejects.toThrow('Failed to start wait timer.')
 
       try {
         await waitPromise
