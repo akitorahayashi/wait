@@ -13,89 +13,36 @@ describe('readInputs', () => {
     mockedGetInput.mockReset()
   })
 
-  it('uses enabled=true and zero duration by default', () => {
-    mockedGetInput.mockReturnValue('')
+  it('reads and trims inputs before passing them to the domain layer', () => {
+    mockedGetInput.mockImplementation((name: string) => {
+      switch (name) {
+        case 'enabled':
+          return '  false  '
+        case 'minutes':
+          return '  2  '
+        case 'seconds':
+          return '  10  '
+        case 'label':
+          return '  my label  '
+        default:
+          return ''
+      }
+    })
+
+    expect(readInputs()).toEqual({
+      enabled: false,
+      effectiveSeconds: 10,
+      label: 'my label',
+    })
+  })
+
+  it('treats empty or whitespace-only inputs as absent', () => {
+    mockedGetInput.mockReturnValue('   ')
 
     expect(readInputs()).toEqual({
       enabled: true,
       effectiveSeconds: 0,
       label: undefined,
     })
-  })
-
-  it('uses seconds as the authoritative duration source', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      switch (name) {
-        case 'enabled':
-          return 'true'
-        case 'minutes':
-          return '5'
-        case 'seconds':
-          return '12'
-        default:
-          return ''
-      }
-    })
-
-    expect(readInputs().effectiveSeconds).toBe(12)
-  })
-
-  it('converts minutes when seconds is omitted', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'minutes') {
-        return '2'
-      }
-      return ''
-    })
-
-    expect(readInputs().effectiveSeconds).toBe(120)
-  })
-
-  it('parses false enabled values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'enabled') {
-        return 'off'
-      }
-      return ''
-    })
-
-    expect(readInputs().enabled).toBe(false)
-  })
-
-  it('trims labels and keeps non-empty values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'label') {
-        return '  deploy gate  '
-      }
-      return ''
-    })
-
-    expect(readInputs().label).toBe('deploy gate')
-  })
-
-  it('fails for unrecognized boolean values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'enabled') {
-        return 'sometimes'
-      }
-      return ''
-    })
-
-    expect(() => readInputs()).toThrow(
-      "Input 'enabled' must be a recognized boolean value.",
-    )
-  })
-
-  it('fails for non-integer durations', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'seconds') {
-        return '1.5'
-      }
-      return ''
-    })
-
-    expect(() => readInputs()).toThrow(
-      "Input 'seconds' must be a non-negative integer.",
-    )
   })
 })
