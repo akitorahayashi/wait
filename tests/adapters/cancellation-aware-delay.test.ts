@@ -48,13 +48,11 @@ describe('cancellationAwareDelay', () => {
     vi.useRealTimers()
   })
 
-  it('resolves immediately if duration is 0', async () => {
-    const waitPromise = cancellationAwareDelay(0)
-    await expect(waitPromise).resolves.toBeUndefined()
-  })
-
-  it('resolves immediately if duration is negative', async () => {
-    const waitPromise = cancellationAwareDelay(-5)
+  it.each([
+    { duration: 0, description: 'is 0' },
+    { duration: -5, description: 'is negative' },
+  ])('resolves immediately if duration $description', async ({ duration }) => {
+    const waitPromise = cancellationAwareDelay(duration)
     await expect(waitPromise).resolves.toBeUndefined()
   })
 
