@@ -149,16 +149,20 @@ describe('cancellationAwareDelay', () => {
 
     try {
       const waitPromise = cancellationAwareDelay(2)
-      await expect(waitPromise).rejects.toThrow('Failed to install cancellation handlers.')
+      await expect(waitPromise).rejects.toThrow(
+        'Failed to install cancellation handlers.',
+      )
     } finally {
       onSpy.mockRestore()
     }
   })
 
   it('rejects if setTimeout throws an error', async () => {
-    const setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation(() => {
-      throw new Error('Fake error during setTimeout')
-    })
+    const setTimeoutSpy = vi
+      .spyOn(global, 'setTimeout')
+      .mockImplementation(() => {
+        throw new Error('Fake error during setTimeout')
+      })
 
     try {
       const waitPromise = cancellationAwareDelay(2)
