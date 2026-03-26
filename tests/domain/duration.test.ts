@@ -12,11 +12,8 @@ describe('resolveEffectiveSeconds', () => {
   })
 
   it('throws ValidationError when type is none', () => {
-    expect(() => resolveEffectiveSeconds({ type: 'none' })).toThrow(
-      ValidationError,
-    )
-    expect(() => resolveEffectiveSeconds({ type: 'none' })).toThrow(
-      'A duration (minutes or seconds) must be specified.',
-    )
+    const act = () => resolveEffectiveSeconds({ type: 'none' })
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow('A duration (minutes or seconds) must be specified.')
   })
 })

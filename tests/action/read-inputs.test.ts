@@ -17,10 +17,9 @@ describe('readInputs', () => {
   it('fails when no duration inputs are provided', () => {
     mockedGetInput.mockReturnValue('')
 
-    expect(() => readInputs()).toThrow(ValidationError)
-    expect(() => readInputs()).toThrow(
-      'A duration (minutes or seconds) must be specified.',
-    )
+    const act = () => readInputs()
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow('A duration (minutes or seconds) must be specified.')
   })
 
   it('fails when both minutes and seconds are provided', () => {
@@ -35,8 +34,9 @@ describe('readInputs', () => {
       }
     })
 
-    expect(() => readInputs()).toThrow(ValidationError)
-    expect(() => readInputs()).toThrow(
+    const act = () => readInputs()
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow(
       'Inputs "minutes" and "seconds" are mutually exclusive.',
     )
   })
@@ -102,10 +102,9 @@ describe('readInputs', () => {
       return ''
     })
 
-    expect(() => readInputs()).toThrow(ValidationError)
-    expect(() => readInputs()).toThrow(
-      "Input 'enabled' must be a recognized boolean value.",
-    )
+    const act = () => readInputs()
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow("Input 'enabled' must be a recognized boolean value.")
   })
 
   it('fails for negative non-integer durations', () => {
@@ -116,10 +115,9 @@ describe('readInputs', () => {
       return ''
     })
 
-    expect(() => readInputs()).toThrow(ValidationError)
-    expect(() => readInputs()).toThrow(
-      "Input 'seconds' must be a non-negative integer.",
-    )
+    const act = () => readInputs()
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow("Input 'seconds' must be a non-negative integer.")
   })
 
   it('fails for decimal non-integer durations', () => {
@@ -130,9 +128,8 @@ describe('readInputs', () => {
       return ''
     })
 
-    expect(() => readInputs()).toThrow(ValidationError)
-    expect(() => readInputs()).toThrow(
-      "Input 'seconds' must be a non-negative integer.",
-    )
+    const act = () => readInputs()
+    expect(act).toThrow(ValidationError)
+    expect(act).toThrow("Input 'seconds' must be a non-negative integer.")
   })
 })
