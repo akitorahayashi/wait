@@ -1,101 +1,60 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as core from '@actions/core'
 import { readInputs } from '../../src/action/read-inputs'
+import { normalizeWaitRequest } from '../../src/domain/wait-request'
 
 vi.mock('@actions/core', () => ({
   getInput: vi.fn(),
 }))
 
+vi.mock('../../src/domain/wait-request', () => ({
+  normalizeWaitRequest: vi.fn(),
+}))
+
 const mockedGetInput = vi.mocked(core.getInput)
+const mockedNormalizeWaitRequest = vi.mocked(normalizeWaitRequest)
 
 describe('readInputs', () => {
   afterEach(() => {
-    mockedGetInput.mockReset()
+    vi.resetAllMocks()
   })
 
-  it('uses enabled=true and zero duration by default', () => {
-    mockedGetInput.mockReturnValue('')
-
-    expect(readInputs()).toEqual({
-      enabled: true,
-      effectiveSeconds: 0,
-      label: undefined,
-    })
-  })
-
-  it('uses seconds as the authoritative duration source', () => {
+  it('reads and trims inputs before passing them to the domain layer', () => {
     mockedGetInput.mockImplementation((name: string) => {
       switch (name) {
         case 'enabled':
-          return 'true'
+          return '  false  '
         case 'minutes':
-          return '5'
+          return '  2  '
         case 'seconds':
-          return '12'
+          return '  10  '
+        case 'label':
+          return '  my label  '
         default:
           return ''
       }
     })
 
-    expect(readInputs().effectiveSeconds).toBe(12)
+    readInputs()
+
+    expect(mockedNormalizeWaitRequest).toHaveBeenCalledWith({
+      enabled: 'false',
+      minutes: '2',
+      seconds: '10',
+      label: 'my label',
+    })
   })
 
-  it('converts minutes when seconds is omitted', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'minutes') {
-        return '2'
-      }
-      return ''
+  it('treats empty or whitespace-only inputs as absent', () => {
+    mockedGetInput.mockReturnValue('   ')
+
+    readInputs()
+
+    expect(mockedNormalizeWaitRequest).toHaveBeenCalledWith({
+      enabled: undefined,
+      minutes: undefined,
+      seconds: undefined,
+      label: undefined,
     })
-
-    expect(readInputs().effectiveSeconds).toBe(120)
-  })
-
-  it('parses false enabled values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'enabled') {
-        return 'off'
-      }
-      return ''
-    })
-
-    expect(readInputs().enabled).toBe(false)
-  })
-
-  it('trims labels and keeps non-empty values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'label') {
-        return '  deploy gate  '
-      }
-      return ''
-    })
-
-    expect(readInputs().label).toBe('deploy gate')
-  })
-
-  it('fails for unrecognized boolean values', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'enabled') {
-        return 'sometimes'
-      }
-      return ''
-    })
-
-    expect(() => readInputs()).toThrow(
-      "Input 'enabled' must be a recognized boolean value.",
-    )
-  })
-
-  it('fails for non-integer durations', () => {
-    mockedGetInput.mockImplementation((name: string) => {
-      if (name === 'seconds') {
-        return '1.5'
-      }
-      return ''
-    })
-
-    expect(() => readInputs()).toThrow(
-      "Input 'seconds' must be a non-negative integer.",
-    )
   })
 })
