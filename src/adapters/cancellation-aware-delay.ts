@@ -1,3 +1,6 @@
+/**
+ * Provides the technical delay mechanism to fulfill the domain's wait request.
+ */
 export class WaitCancelledError extends Error {
   public readonly signal: NodeJS.Signals
 
