@@ -13,7 +13,10 @@ vi.mock('../src/action/read-inputs')
 vi.mock('../src/app/execute-wait')
 vi.mock('../src/action/emit-outputs')
 vi.mock('../src/adapters/cancellation-aware-delay', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../src/adapters/cancellation-aware-delay')>()
+  const actual =
+    await importOriginal<
+      typeof import('../src/adapters/cancellation-aware-delay')
+    >()
   return {
     ...actual,
     cancellationAwareDelay: vi.fn(),
@@ -30,8 +33,6 @@ describe('index bootstrap', () => {
     it('should read inputs, execute wait, and emit outputs', async () => {
       const mockRequest: WaitRequest = {
         enabled: true,
-        minutes: undefined,
-        seconds: undefined,
         effectiveSeconds: 5,
         label: undefined,
       }
