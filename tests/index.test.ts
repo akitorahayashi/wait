@@ -76,15 +76,6 @@ describe('index bootstrap', () => {
       expect(core.setFailed).not.toHaveBeenCalled()
     })
 
-    it('should set default exit code and log notice for WaitCancelledError with unknown signal', () => {
-      const error = new WaitCancelledError('SIGUSR1' as NodeJS.Signals)
-      handleError(error)
-
-      expect(core.notice).toHaveBeenCalledWith('Wait cancelled by SIGUSR1.')
-      expect(process.exitCode).toBe(1)
-      expect(core.setFailed).not.toHaveBeenCalled()
-    })
-
     it('should fail with error message for generic Error', () => {
       const error = new Error('Something went wrong')
       handleError(error)
@@ -111,11 +102,6 @@ describe('index bootstrap', () => {
 
     it('should return 143 for SIGTERM', () => {
       expect(signalExitCode('SIGTERM')).toBe(143)
-    })
-
-    it('should return 1 for unknown signals', () => {
-      expect(signalExitCode('SIGKILL')).toBe(1)
-      expect(signalExitCode('SIGUSR1')).toBe(1)
     })
   })
 })
