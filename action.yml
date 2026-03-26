@@ -4,6 +4,7 @@ inputs:
   enabled:
     description: Optional boolean flag to enable or disable waiting
     required: false
+    default: 'true'
   minutes:
     description: Optional non-negative integer duration in minutes when seconds is omitted
     required: false
