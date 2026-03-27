@@ -1,7 +1,10 @@
+/**
+ * Provides the technical delay mechanism to fulfill the domain's wait request.
+ */
 export class WaitCancelledError extends Error {
-  public readonly signal: NodeJS.Signals
+  public readonly signal: 'SIGINT' | 'SIGTERM'
 
-  constructor(signal: NodeJS.Signals) {
+  constructor(signal: 'SIGINT' | 'SIGTERM') {
     super(`Wait cancelled by ${signal}.`)
     this.name = 'WaitCancelledError'
     this.signal = signal
@@ -38,7 +41,7 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
       reject(error)
     }
 
-    const onSignal = (signal: NodeJS.Signals) => {
+    const onSignal = (signal: 'SIGINT' | 'SIGTERM') => {
       rejectWithError(new WaitCancelledError(signal))
     }
 
@@ -48,8 +51,10 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
     try {
       process.on('SIGINT', onSigint)
       process.on('SIGTERM', onSigterm)
-    } catch {
-      rejectWithError(new Error('Failed to install cancellation handlers.'))
+    } catch (error) {
+      rejectWithError(
+        new Error('Failed to install cancellation handlers.', { cause: error }),
+      )
       return
     }
 
@@ -72,8 +77,10 @@ export async function cancellationAwareDelay(seconds: number): Promise<void> {
           scheduleNextChunk,
           chunkSeconds * MILLISECONDS_PER_SECOND,
         )
-      } catch {
-        rejectWithError(new Error('Failed to start wait timer.'))
+      } catch (error) {
+        rejectWithError(
+          new Error('Failed to start wait timer.', { cause: error }),
+        )
       }
     }
 
