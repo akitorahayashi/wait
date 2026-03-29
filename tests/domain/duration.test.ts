@@ -16,13 +16,21 @@ describe('resolveEffectiveSeconds', () => {
 
   it('rejects negative values', () => {
     expect(() => resolveEffectiveSeconds({ seconds: '-1' })).toThrow(
-      "Input 'seconds' must be a non-negative integer.",
+      "Input 'seconds' must be a non-negative number.",
     )
   })
 
-  it('rejects decimal values', () => {
-    expect(() => resolveEffectiveSeconds({ minutes: '1.5' })).toThrow(
-      "Input 'minutes' must be a non-negative integer.",
+  it('accepts decimal seconds and truncates', () => {
+    expect(resolveEffectiveSeconds({ seconds: '30.9' })).toBe(30)
+  })
+
+  it('accepts decimal minutes and truncates after conversion', () => {
+    expect(resolveEffectiveSeconds({ minutes: '1.5' })).toBe(90)
+  })
+
+  it('rejects non-numeric values', () => {
+    expect(() => resolveEffectiveSeconds({ minutes: 'abc' })).toThrow(
+      "Input 'minutes' must be a non-negative number.",
     )
   })
 })

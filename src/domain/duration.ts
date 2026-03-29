@@ -7,25 +7,37 @@ const SECONDS_PER_MINUTE = 60
 
 export function resolveEffectiveSeconds(inputs: DurationInputs): number {
   if (inputs.seconds !== undefined) {
-    return parseNonNegativeInteger('seconds', inputs.seconds)
+    return normalizeToIntegerSeconds(
+      parseNonNegativeNumber('seconds', inputs.seconds),
+    )
   }
 
   if (inputs.minutes !== undefined) {
-    return (
-      parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE
+    return normalizeToIntegerSeconds(
+      parseNonNegativeNumber('minutes', inputs.minutes) * SECONDS_PER_MINUTE,
     )
   }
 
   return 0
 }
 
-function parseNonNegativeInteger(
+function parseNonNegativeNumber(
   name: 'minutes' | 'seconds',
   value: string,
 ): number {
-  if (!/^\d+$/.test(value)) {
-    throw new Error(`Input '${name}' must be a non-negative integer.`)
+  const normalized = value.trim()
+  if (normalized.length === 0) {
+    throw new Error(`Input '${name}' must be a non-negative number.`)
   }
 
-  return Number.parseInt(value, 10)
+  const parsed = Number(normalized)
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`Input '${name}' must be a non-negative number.`)
+  }
+
+  return parsed
+}
+
+function normalizeToIntegerSeconds(value: number): number {
+  return Math.trunc(value)
 }
