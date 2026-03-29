@@ -1,6 +1,6 @@
 ---
 label: "tests"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -12,8 +12,7 @@ Ensure comprehensive test coverage for domain parameter validation and input map
 Critical validation and boundary mapping logic paths are currently untested. This lack of coverage creates vulnerabilities to silent regressions in how the system protects itself from invalid inputs or maps valid inputs. Specifically:
 1. Missing coverage for error paths on empty string values.
 2. Missing coverage for truthy boolean string parsing.
-3. Missing coverage for length-0 labels.
-4. Missing verification of property propagation (e.g., how `minutes` and `seconds` map to `effectiveSeconds`).
+3. Missing verification of property propagation (e.g., how `minutes` and `seconds` map to `effectiveSeconds`).
 
 ## Context
 
@@ -30,11 +29,6 @@ Because tests for these properties are entirely absent, a regression might occur
   path: "src/domain/wait-request.ts"
   loc: "Lines 37-39"
   note: "Branch handling truthy boolean string inputs is not covered by tests."
-
-- source_event: "untested_error_paths_cov.md"
-  path: "src/domain/wait-request.ts"
-  loc: "Line 53"
-  note: "Branch handling length 0 labels is not fully covered by tests."
 
 - source_event: "wait_request_missing_properties_qa.md"
   path: "tests/domain/wait-request.test.ts"
@@ -60,5 +54,4 @@ Because tests for these properties are entirely absent, a regression might occur
 
 - `tests/domain/duration.test.ts` contains cases asserting the behavior of parsing empty numeric string inputs.
 - `tests/domain/wait-request.test.ts` contains cases validating successful mapping of truthy string values (e.g., `'true'`, `'yes'`, `'on'`, `'1'`).
-- `tests/domain/wait-request.test.ts` contains cases covering zero-length (empty string) label handling.
 - `tests/domain/wait-request.test.ts` contains integration-style verification ensuring `minutes` and `seconds` values are correctly mapped into an `effectiveSeconds` property.
