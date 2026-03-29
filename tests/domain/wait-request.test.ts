@@ -10,6 +10,13 @@ describe('normalizeWaitRequest', () => {
     expect(normalizeWaitRequest({ enabled: 'false' }).enabled).toBe(false)
   })
 
+  it('normalizes true boolean tokens', () => {
+    expect(normalizeWaitRequest({ enabled: 'true' }).enabled).toBe(true)
+    expect(normalizeWaitRequest({ enabled: 'yes' }).enabled).toBe(true)
+    expect(normalizeWaitRequest({ enabled: 'on' }).enabled).toBe(true)
+    expect(normalizeWaitRequest({ enabled: '1' }).enabled).toBe(true)
+  })
+
   it('drops empty labels', () => {
     expect(normalizeWaitRequest({ label: '' }).label).toBeUndefined()
   })
@@ -18,5 +25,19 @@ describe('normalizeWaitRequest', () => {
     expect(() => normalizeWaitRequest({ enabled: 'disabled' })).toThrow(
       "Input 'enabled' must be a recognized boolean value.",
     )
+  })
+
+  it('maps seconds to effectiveSeconds', () => {
+    expect(normalizeWaitRequest({ seconds: '15' }).effectiveSeconds).toBe(15)
+  })
+
+  it('maps minutes to effectiveSeconds', () => {
+    expect(normalizeWaitRequest({ minutes: '2' }).effectiveSeconds).toBe(120)
+  })
+
+  it('prioritizes seconds over minutes for effectiveSeconds', () => {
+    expect(
+      normalizeWaitRequest({ seconds: '30', minutes: '5' }).effectiveSeconds,
+    ).toBe(30)
   })
 })
