@@ -25,7 +25,7 @@ describe('resolveEffectiveSeconds', () => {
   })
 
   it('accepts decimal minutes and truncates after conversion', () => {
-    expect(resolveEffectiveSeconds({ minutes: '1.5' })).toBe(90)
+    expect(resolveEffectiveSeconds({ minutes: '0.02' })).toBe(1)
   })
 
   it('rejects non-numeric values', () => {
