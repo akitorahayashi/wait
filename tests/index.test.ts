@@ -38,7 +38,10 @@ describe('index bootstrap', () => {
       }
       const mockResult: WaitResult = { waited: true, effectiveSeconds: 5 }
 
-      vi.spyOn(readInputsModule, 'readInputs').mockReturnValue(mockRequest)
+      vi.spyOn(readInputsModule, 'readInputs').mockReturnValue({
+        ok: true,
+        value: mockRequest,
+      })
       vi.spyOn(executeWaitModule, 'executeWait').mockResolvedValue(mockResult)
       vi.spyOn(emitOutputsModule, 'emitOutputs').mockImplementation(() => {})
 
@@ -54,6 +57,22 @@ describe('index bootstrap', () => {
       )
       expect(emitOutputsModule.emitOutputs).toHaveBeenCalledWith(mockResult)
       expect(core.debug).toHaveBeenCalledWith('Wait action completed.')
+    })
+
+    it('should log error and exit if inputs are invalid', async () => {
+      vi.spyOn(readInputsModule, 'readInputs').mockReturnValue({
+        ok: false,
+        error: new Error('Invalid inputs'),
+      })
+      vi.spyOn(executeWaitModule, 'executeWait')
+      vi.spyOn(emitOutputsModule, 'emitOutputs')
+
+      await run()
+
+      expect(readInputsModule.readInputs).toHaveBeenCalledOnce()
+      expect(executeWaitModule.executeWait).not.toHaveBeenCalled()
+      expect(emitOutputsModule.emitOutputs).not.toHaveBeenCalled()
+      expect(core.setFailed).toHaveBeenCalledWith('Invalid inputs')
     })
   })
 
