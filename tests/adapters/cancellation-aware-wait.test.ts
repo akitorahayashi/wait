@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   WaitCancelledError,
-  cancellationAwareDelay,
-} from '../../src/adapters/cancellation-aware-delay'
+  cancellationAwareWait,
+} from '../../src/adapters/cancellation-aware-wait'
 
 function captureSignalHandlers(): {
   handlers: Map<NodeJS.Signals, () => void>
@@ -43,7 +43,7 @@ function captureSignalHandlers(): {
   }
 }
 
-describe('cancellationAwareDelay', () => {
+describe('cancellationAwareWait', () => {
   afterEach(() => {
     vi.useRealTimers()
   })
@@ -52,14 +52,14 @@ describe('cancellationAwareDelay', () => {
     { duration: 0, description: 'is 0' },
     { duration: -5, description: 'is negative' },
   ])('resolves immediately if duration $description', async ({ duration }) => {
-    const waitPromise = cancellationAwareDelay(duration)
+    const waitPromise = cancellationAwareWait(duration)
     await expect(waitPromise).resolves.toBeUndefined()
   })
 
   it('resolves after the requested duration', async () => {
     vi.useFakeTimers()
 
-    const waitPromise = cancellationAwareDelay(2)
+    const waitPromise = cancellationAwareWait(2)
     await vi.advanceTimersByTimeAsync(2000)
 
     await expect(waitPromise).resolves.toBeUndefined()
@@ -70,7 +70,7 @@ describe('cancellationAwareDelay', () => {
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
+      const waitPromise = cancellationAwareWait(60)
       const handler = handlers.get('SIGINT')
 
       expect(handler).toBeTypeOf('function')
@@ -88,7 +88,7 @@ describe('cancellationAwareDelay', () => {
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
+      const waitPromise = cancellationAwareWait(60)
       const handler = handlers.get('SIGTERM')
 
       expect(handler).toBeTypeOf('function')
@@ -101,10 +101,10 @@ describe('cancellationAwareDelay', () => {
     }
   })
 
-  it('resolves correctly for chunked delays longer than 60 seconds', async () => {
+  it('resolves correctly for chunked waits longer than 60 seconds', async () => {
     vi.useFakeTimers()
 
-    const waitPromise = cancellationAwareDelay(150) // 60s + 60s + 30s
+    const waitPromise = cancellationAwareWait(150) // 60s + 60s + 30s
     await vi.advanceTimersByTimeAsync(60_000)
     await vi.advanceTimersByTimeAsync(60_000)
     await vi.advanceTimersByTimeAsync(30_000)
@@ -112,12 +112,12 @@ describe('cancellationAwareDelay', () => {
     await expect(waitPromise).resolves.toBeUndefined()
   })
 
-  it('cancels properly during a subsequent chunk of a long delay', async () => {
+  it('cancels properly during a subsequent chunk of a long wait', async () => {
     vi.useFakeTimers()
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(150)
+      const waitPromise = cancellationAwareWait(150)
       await vi.advanceTimersByTimeAsync(60_000)
 
       const handler = handlers.get('SIGINT')
@@ -140,7 +140,7 @@ describe('cancellationAwareDelay', () => {
     })
 
     try {
-      const waitPromise = cancellationAwareDelay(2)
+      const waitPromise = cancellationAwareWait(2)
       await expect(waitPromise).rejects.toThrow(
         'Failed to install cancellation handlers.',
       )
@@ -165,7 +165,7 @@ describe('cancellationAwareDelay', () => {
       })
 
     try {
-      const waitPromise = cancellationAwareDelay(2)
+      const waitPromise = cancellationAwareWait(2)
       await expect(waitPromise).rejects.toThrow('Failed to start wait timer.')
 
       try {
@@ -183,7 +183,7 @@ describe('cancellationAwareDelay', () => {
     const { handlers, restore } = captureSignalHandlers()
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
+      const waitPromise = cancellationAwareWait(60)
       const handler = handlers.get('SIGINT')
 
       expect(handler).toBeTypeOf('function')
@@ -210,7 +210,7 @@ describe('cancellationAwareDelay', () => {
     }) as typeof setTimeout)
 
     try {
-      const waitPromise = cancellationAwareDelay(150)
+      const waitPromise = cancellationAwareWait(150)
 
       const handler = handlers.get('SIGINT')
       expect(handler).toBeTypeOf('function')

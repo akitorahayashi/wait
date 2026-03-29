@@ -3,7 +3,7 @@ import { executeWait } from '../../src/app/execute-wait'
 
 describe('executeWait', () => {
   it('skips when enabled is false', async () => {
-    const delay = vi.fn<(seconds: number) => Promise<void>>()
+    const wait = vi.fn<(seconds: number) => Promise<void>>()
     const log = vi.fn<(message: string) => void>()
 
     const result = await executeWait(
@@ -12,18 +12,18 @@ describe('executeWait', () => {
         effectiveSeconds: 20,
         label: undefined,
       },
-      { delay, log },
+      { wait, log },
     )
 
     expect(result).toEqual({ waited: false, effectiveSeconds: 20 })
-    expect(delay).not.toHaveBeenCalled()
+    expect(wait).not.toHaveBeenCalled()
     expect(log).toHaveBeenCalledWith(
       'Skipping wait because enabled=false. effective_seconds=20.',
     )
   })
 
   it('skips when effective duration is zero', async () => {
-    const delay = vi.fn<(seconds: number) => Promise<void>>()
+    const wait = vi.fn<(seconds: number) => Promise<void>>()
     const log = vi.fn<(message: string) => void>()
 
     const result = await executeWait(
@@ -32,20 +32,18 @@ describe('executeWait', () => {
         effectiveSeconds: 0,
         label: 'build',
       },
-      { delay, log },
+      { wait, log },
     )
 
     expect(result).toEqual({ waited: false, effectiveSeconds: 0 })
-    expect(delay).not.toHaveBeenCalled()
+    expect(wait).not.toHaveBeenCalled()
     expect(log).toHaveBeenCalledWith(
       'Skipping wait because effective_seconds=0. label=build',
     )
   })
 
   it('waits when enabled and duration is positive', async () => {
-    const delay = vi
-      .fn<(seconds: number) => Promise<void>>()
-      .mockResolvedValue()
+    const wait = vi.fn<(seconds: number) => Promise<void>>().mockResolvedValue()
     const log = vi.fn<(message: string) => void>()
 
     const result = await executeWait(
@@ -54,11 +52,11 @@ describe('executeWait', () => {
         effectiveSeconds: 12,
         label: 'deploy',
       },
-      { delay, log },
+      { wait, log },
     )
 
     expect(result).toEqual({ waited: true, effectiveSeconds: 12 })
-    expect(delay).toHaveBeenCalledWith(12)
+    expect(wait).toHaveBeenCalledWith(12)
     expect(log).toHaveBeenCalledWith(
       'Starting wait for 12 second(s). label=deploy',
     )
@@ -67,8 +65,8 @@ describe('executeWait', () => {
     )
   })
 
-  it('propagates delay failures', async () => {
-    const delay = vi
+  it('propagates wait failures', async () => {
+    const wait = vi
       .fn<(seconds: number) => Promise<void>>()
       .mockRejectedValue(new Error('cancelled'))
 
@@ -79,7 +77,7 @@ describe('executeWait', () => {
           effectiveSeconds: 15,
           label: undefined,
         },
-        { delay, log: vi.fn() },
+        { wait, log: vi.fn() },
       ),
     ).rejects.toThrow('cancelled')
   })

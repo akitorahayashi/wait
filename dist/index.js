@@ -25751,16 +25751,16 @@ function readOptionalInput(name) {
 
 /***/ }),
 
-/***/ 832:
+/***/ 8050:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaitCancelledError = void 0;
-exports.cancellationAwareDelay = cancellationAwareDelay;
+exports.cancellationAwareWait = cancellationAwareWait;
 /**
- * Provides the technical delay mechanism to fulfill the domain's wait request.
+ * Provides the technical wait mechanism to fulfill the domain's wait request.
  */
 class WaitCancelledError extends Error {
     signal;
@@ -25772,8 +25772,8 @@ class WaitCancelledError extends Error {
 }
 exports.WaitCancelledError = WaitCancelledError;
 const MILLISECONDS_PER_SECOND = 1000;
-const SECONDS_PER_DELAY_CHUNK = 60;
-async function cancellationAwareDelay(seconds) {
+const SECONDS_PER_WAIT_CHUNK = 60;
+async function cancellationAwareWait(seconds) {
     if (seconds <= 0) {
         return;
     }
@@ -25819,7 +25819,7 @@ async function cancellationAwareDelay(seconds) {
                 resolve();
                 return;
             }
-            const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_DELAY_CHUNK);
+            const chunkSeconds = Math.min(remainingSeconds, SECONDS_PER_WAIT_CHUNK);
             remainingSeconds -= chunkSeconds;
             try {
                 timeout = setTimeout(scheduleNextChunk, chunkSeconds * MILLISECONDS_PER_SECOND);
@@ -25853,7 +25853,7 @@ async function executeWait(request, dependencies) {
         return { waited: false, effectiveSeconds: request.effectiveSeconds };
     }
     dependencies.log(`Starting wait for ${request.effectiveSeconds} second(s).${labelSegment}`);
-    await dependencies.delay(request.effectiveSeconds);
+    await dependencies.wait(request.effectiveSeconds);
     dependencies.log(`Wait completed after ${request.effectiveSeconds} second(s).${labelSegment}`);
     return { waited: true, effectiveSeconds: request.effectiveSeconds };
 }
@@ -25982,19 +25982,19 @@ exports.signalExitCode = signalExitCode;
 const core = __importStar(__nccwpck_require__(7484));
 const emit_outputs_1 = __nccwpck_require__(8340);
 const read_inputs_1 = __nccwpck_require__(2316);
-const cancellation_aware_delay_1 = __nccwpck_require__(832);
+const cancellation_aware_wait_1 = __nccwpck_require__(8050);
 const execute_wait_1 = __nccwpck_require__(9811);
 async function run() {
     const request = (0, read_inputs_1.readInputs)();
     const result = await (0, execute_wait_1.executeWait)(request, {
-        delay: cancellation_aware_delay_1.cancellationAwareDelay,
+        wait: cancellation_aware_wait_1.cancellationAwareWait,
         log: core.info,
     });
     (0, emit_outputs_1.emitOutputs)(result);
     core.debug('Wait action completed.');
 }
 function handleError(error) {
-    if (error instanceof cancellation_aware_delay_1.WaitCancelledError) {
+    if (error instanceof cancellation_aware_wait_1.WaitCancelledError) {
         core.notice(error.message);
         process.exitCode = signalExitCode(error.signal);
         return;

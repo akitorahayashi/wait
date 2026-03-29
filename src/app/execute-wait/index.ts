@@ -25,7 +25,7 @@ export async function executeWait(
   dependencies.log(
     `Starting wait for ${request.effectiveSeconds} second(s).${labelSegment}`,
   )
-  await dependencies.delay(request.effectiveSeconds)
+  await dependencies.wait(request.effectiveSeconds)
   dependencies.log(
     `Wait completed after ${request.effectiveSeconds} second(s).${labelSegment}`,
   )

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import * as core from '@actions/core'
 import { run, handleError, signalExitCode } from '../src/index'
-import { WaitCancelledError } from '../src/adapters/cancellation-aware-delay'
+import { WaitCancelledError } from '../src/adapters/cancellation-aware-wait'
 import * as readInputsModule from '../src/action/read-inputs'
 import * as executeWaitModule from '../src/app/execute-wait'
 import * as emitOutputsModule from '../src/action/emit-outputs'
@@ -12,14 +12,14 @@ vi.mock('@actions/core')
 vi.mock('../src/action/read-inputs')
 vi.mock('../src/app/execute-wait')
 vi.mock('../src/action/emit-outputs')
-vi.mock('../src/adapters/cancellation-aware-delay', async (importOriginal) => {
+vi.mock('../src/adapters/cancellation-aware-wait', async (importOriginal) => {
   const actual =
     await importOriginal<
-      typeof import('../src/adapters/cancellation-aware-delay')
+      typeof import('../src/adapters/cancellation-aware-wait')
     >()
   return {
     ...actual,
-    cancellationAwareDelay: vi.fn(),
+    cancellationAwareWait: vi.fn(),
   }
 })
 
@@ -48,7 +48,7 @@ describe('index bootstrap', () => {
       expect(executeWaitModule.executeWait).toHaveBeenCalledWith(
         mockRequest,
         expect.objectContaining({
-          delay: expect.any(Function),
+          wait: expect.any(Function),
           log: core.info,
         }),
       )

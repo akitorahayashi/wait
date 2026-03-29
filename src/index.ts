@@ -3,14 +3,14 @@ import { emitOutputs } from './action/emit-outputs'
 import { readInputs } from './action/read-inputs'
 import {
   WaitCancelledError,
-  cancellationAwareDelay,
-} from './adapters/cancellation-aware-delay'
+  cancellationAwareWait,
+} from './adapters/cancellation-aware-wait'
 import { executeWait } from './app/execute-wait'
 
 export async function run(): Promise<void> {
   const request = readInputs()
   const result = await executeWait(request, {
-    delay: cancellationAwareDelay,
+    wait: cancellationAwareWait,
     log: core.info,
   })
 
