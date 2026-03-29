@@ -6,10 +6,10 @@ inputs:
     required: false
     default: 'true'
   minutes:
-    description: Optional non-negative integer duration in minutes when seconds is omitted
+    description: Optional non-negative number of minutes when seconds is omitted; fractional values are truncated after conversion
     required: false
   seconds:
-    description: Optional non-negative integer duration in seconds
+    description: Optional non-negative number of seconds; fractional values are truncated
     required: false
   label:
     description: Optional descriptive label included in logs

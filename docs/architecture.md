@@ -42,7 +42,7 @@ The repository demonstrates a boundary-owned wait action implementation with exp
 The action fails explicitly when:
 
 - boolean input values are not recognized
-- numeric input values are not non-negative integers
+- numeric input values are not non-negative numbers
 - cancellation handlers cannot be installed or timer creation fails
 
 No silent fallback paths are used.
