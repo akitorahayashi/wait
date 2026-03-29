@@ -1,6 +1,6 @@
 ---
 label: "docs"
-implementation_ready: false
+implementation_ready: true
 ---
 
 ## Goal
@@ -9,7 +9,7 @@ Ensure `docs/architecture.md` accurately describes the system's dependency bound
 
 ## Problem
 
-The current `docs/architecture.md` documentation exhibits architectural drift by misrepresenting the module dependencies. It erroneously claims a linear dependency chain (`action -> app -> adapters`). However, the implementation correctly maintains boundary isolation, utilizing dependency injection inside `index.ts` and having `app` define an explicit dependency interface (`ExecuteWaitDependencies`) rather than importing from `adapters` directly. Inaccurate documentation creates confusion and risks contributors violating boundary invariants.
+The current `docs/architecture.md` documentation exhibits architectural drift by misrepresenting the module dependencies. It erroneously claims that `action` depends on `app`, and `app` depends on `adapters`. However, the implementation correctly maintains boundary isolation, utilizing dependency injection inside `index.ts` and having `app` define an explicit dependency interface (`ExecuteWaitDependencies`) rather than importing from `adapters` directly. Inaccurate documentation creates confusion and risks contributors violating boundary invariants.
 
 ## Context
 
