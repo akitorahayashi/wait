@@ -25759,6 +25759,9 @@ function readOptionalInput(name) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaitCancelledError = void 0;
 exports.cancellationAwareDelay = cancellationAwareDelay;
+/**
+ * Provides the technical delay mechanism to fulfill the domain's wait request.
+ */
 class WaitCancelledError extends Error {
     signal;
     constructor(signal) {
@@ -25802,8 +25805,8 @@ async function cancellationAwareDelay(seconds) {
             process.on('SIGINT', onSigint);
             process.on('SIGTERM', onSigterm);
         }
-        catch {
-            rejectWithError(new Error('Failed to install cancellation handlers.'));
+        catch (error) {
+            rejectWithError(new Error('Failed to install cancellation handlers.', { cause: error }));
             return;
         }
         const scheduleNextChunk = () => {
@@ -25821,8 +25824,8 @@ async function cancellationAwareDelay(seconds) {
             try {
                 timeout = setTimeout(scheduleNextChunk, chunkSeconds * MILLISECONDS_PER_SECOND);
             }
-            catch {
-                rejectWithError(new Error('Failed to start wait timer.'));
+            catch (error) {
+                rejectWithError(new Error('Failed to start wait timer.', { cause: error }));
             }
         };
         scheduleNextChunk();
@@ -25868,18 +25871,26 @@ exports.resolveEffectiveSeconds = resolveEffectiveSeconds;
 const SECONDS_PER_MINUTE = 60;
 function resolveEffectiveSeconds(inputs) {
     if (inputs.seconds !== undefined) {
-        return parseNonNegativeInteger('seconds', inputs.seconds);
+        return normalizeToIntegerSeconds(parseNonNegativeNumber('seconds', inputs.seconds));
     }
     if (inputs.minutes !== undefined) {
-        return (parseNonNegativeInteger('minutes', inputs.minutes) * SECONDS_PER_MINUTE);
+        return normalizeToIntegerSeconds(parseNonNegativeNumber('minutes', inputs.minutes) * SECONDS_PER_MINUTE);
     }
     return 0;
 }
-function parseNonNegativeInteger(name, value) {
-    if (!/^\d+$/.test(value)) {
-        throw new Error(`Input '${name}' must be a non-negative integer.`);
+function parseNonNegativeNumber(name, value) {
+    const normalized = value.trim();
+    if (normalized.length === 0) {
+        throw new Error(`Input '${name}' must be a non-negative number.`);
     }
-    return Number.parseInt(value, 10);
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+        throw new Error(`Input '${name}' must be a non-negative number.`);
+    }
+    return parsed;
+}
+function normalizeToIntegerSeconds(value) {
+    return Math.trunc(value);
 }
 
 
@@ -25965,6 +25976,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
+exports.handleError = handleError;
+exports.signalExitCode = signalExitCode;
 const core = __importStar(__nccwpck_require__(7484));
 const emit_outputs_1 = __nccwpck_require__(8340);
 const read_inputs_1 = __nccwpck_require__(2316);
@@ -25979,19 +25993,17 @@ async function run() {
     (0, emit_outputs_1.emitOutputs)(result);
     core.debug('Wait action completed.');
 }
-if (require.main === require.cache[eval('__filename')]) {
-    run().catch((error) => {
-        if (error instanceof cancellation_aware_delay_1.WaitCancelledError) {
-            core.notice(error.message);
-            process.exitCode = signalExitCode(error.signal);
-            return;
-        }
-        if (error instanceof Error) {
-            core.setFailed(error.message);
-            return;
-        }
-        core.setFailed(String(error));
-    });
+function handleError(error) {
+    if (error instanceof cancellation_aware_delay_1.WaitCancelledError) {
+        core.notice(error.message);
+        process.exitCode = signalExitCode(error.signal);
+        return;
+    }
+    if (error instanceof Error) {
+        core.setFailed(error.message);
+        return;
+    }
+    core.setFailed(String(error));
 }
 function signalExitCode(signal) {
     switch (signal) {
@@ -25999,9 +26011,10 @@ function signalExitCode(signal) {
             return 130;
         case 'SIGTERM':
             return 143;
-        default:
-            return 1;
     }
+}
+if (require.main === require.cache[eval('__filename')]) {
+    run().catch(handleError);
 }
 
 
