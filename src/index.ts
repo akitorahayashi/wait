@@ -8,8 +8,14 @@ import {
 import { executeWait } from './app/execute-wait'
 
 export async function run(): Promise<void> {
-  const request = readInputs()
-  const result = await executeWait(request, {
+  const requestResult = readInputs()
+
+  if (!requestResult.ok) {
+    core.setFailed(requestResult.error.message)
+    return
+  }
+
+  const result = await executeWait(requestResult.value, {
     delay: cancellationAwareDelay,
     log: core.info,
   })
