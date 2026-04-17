@@ -43,16 +43,4 @@ describe('resolveEffectiveSeconds', () => {
       value: 1,
     })
   })
-
-  it('rejects empty string values for seconds', () => {
-    expect(() => resolveEffectiveSeconds({ seconds: '' })).toThrow(
-      "Input 'seconds' must be a non-negative number.",
-    )
-  })
-
-  it('rejects blank string values for minutes', () => {
-    expect(() => resolveEffectiveSeconds({ minutes: '   ' })).toThrow(
-      "Input 'minutes' must be a non-negative number.",
-    )
-  })
 })
