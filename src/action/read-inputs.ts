@@ -1,11 +1,15 @@
 import * as core from '@actions/core'
 import { createWaitRequest, type WaitRequest } from '../domain/wait-request'
 import type { DurationInput } from '../domain/duration'
-import { type Result, err } from '../domain/result'
+import { type Result, ok, err } from '../domain/result'
 
 export function readInputs(): Result<WaitRequest, Error> {
   const enabledInput = readOptionalInput('enabled')
-  const enabled = parseBooleanInput(enabledInput, true, 'enabled')
+  const enabledResult = parseBooleanInput(enabledInput, true, 'enabled')
+  if (!enabledResult.ok) {
+    return enabledResult
+  }
+  const enabled = enabledResult.value
 
   const minutesInput = readOptionalInput('minutes')
   const secondsInput = readOptionalInput('seconds')
@@ -47,19 +51,19 @@ function parseBooleanInput(
   value: string | undefined,
   defaultValue: boolean,
   name: string,
-): boolean {
+): Result<boolean, Error> {
   if (value === undefined) {
-    return defaultValue
+    return ok(defaultValue)
   }
 
   const normalizedValue = value.toLowerCase()
   if (['1', 'true', 'yes', 'on'].includes(normalizedValue)) {
-    return true
+    return ok(true)
   }
 
   if (['0', 'false', 'no', 'off'].includes(normalizedValue)) {
-    return false
+    return ok(false)
   }
 
-  throw new Error(`Input '${name}' must be a recognized boolean value.`)
+  return err(new Error(`Input '${name}' must be a recognized boolean value.`))
 }

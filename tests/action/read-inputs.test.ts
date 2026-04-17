@@ -87,9 +87,14 @@ describe('readInputs', () => {
       return ''
     })
 
-    expect(() => readInputs()).toThrow(
-      "Input 'enabled' must be a recognized boolean value.",
-    )
+    const result = readInputs()
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.message).toBe(
+        "Input 'enabled' must be a recognized boolean value.",
+      )
+    }
   })
 
   it('fails when parsing non-numeric duration string', () => {

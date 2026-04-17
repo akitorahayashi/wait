@@ -11,15 +11,17 @@ export function resolveEffectiveSeconds(
   input: DurationInput,
 ): Result<number, Error> {
   if ('seconds' in input) {
-    return parseNonNegativeNumber('seconds', input.seconds).ok
-      ? ok(normalizeToIntegerSeconds(input.seconds))
-      : err(new Error("Input 'seconds' must be a non-negative number."))
+    const secondsResult = parseNonNegativeNumber('seconds', input.seconds)
+    return secondsResult.ok
+      ? ok(normalizeToIntegerSeconds(secondsResult.value))
+      : secondsResult
   }
 
   if ('minutes' in input) {
-    return parseNonNegativeNumber('minutes', input.minutes).ok
-      ? ok(normalizeToIntegerSeconds(input.minutes * SECONDS_PER_MINUTE))
-      : err(new Error("Input 'minutes' must be a non-negative number."))
+    const minutesResult = parseNonNegativeNumber('minutes', input.minutes)
+    return minutesResult.ok
+      ? ok(normalizeToIntegerSeconds(minutesResult.value * SECONDS_PER_MINUTE))
+      : minutesResult
   }
 
   return ok(0)
