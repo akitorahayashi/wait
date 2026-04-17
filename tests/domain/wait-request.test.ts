@@ -6,15 +6,15 @@ describe('normalizeWaitRequest', () => {
     expect(normalizeWaitRequest({}).enabled).toBe(true)
   })
 
-  it('normalizes false boolean token', () => {
-    expect(normalizeWaitRequest({ enabled: 'false' }).enabled).toBe(false)
-  })
-
-  it('normalizes true boolean tokens', () => {
+  it('normalizes boolean tokens', () => {
     expect(normalizeWaitRequest({ enabled: 'true' }).enabled).toBe(true)
-    expect(normalizeWaitRequest({ enabled: 'yes' }).enabled).toBe(true)
+    expect(normalizeWaitRequest({ enabled: 'YES' }).enabled).toBe(true)
     expect(normalizeWaitRequest({ enabled: 'on' }).enabled).toBe(true)
     expect(normalizeWaitRequest({ enabled: '1' }).enabled).toBe(true)
+    expect(normalizeWaitRequest({ enabled: 'false' }).enabled).toBe(false)
+    expect(normalizeWaitRequest({ enabled: 'no' }).enabled).toBe(false)
+    expect(normalizeWaitRequest({ enabled: 'OFF' }).enabled).toBe(false)
+    expect(normalizeWaitRequest({ enabled: '0' }).enabled).toBe(false)
   })
 
   it('drops empty labels', () => {
