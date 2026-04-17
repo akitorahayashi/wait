@@ -19,14 +19,21 @@ function loadActionFile(path: string): ActionFile {
 }
 
 describe('action metadata contracts', () => {
-  it('declares node24, wait input contract, and wait outputs', () => {
-    const action = loadActionFile('action.yml')
+  const action = loadActionFile('action.yml')
+
+  it('declares node24 runtime', () => {
     expect(action.runs.using).toBe('node24')
     expect(action.runs.main).toBe('dist/index.js')
+  })
+
+  it('declares wait input contract', () => {
     expect(action.inputs.enabled.required).toBe(false)
     expect(action.inputs.minutes.required).toBe(false)
     expect(action.inputs.seconds.required).toBe(false)
     expect(action.inputs.label.required).toBe(false)
+  })
+
+  it('declares wait outputs', () => {
     expect(Object.keys(action.outputs)).toContain('waited')
     expect(Object.keys(action.outputs)).toContain('effective_seconds')
   })
