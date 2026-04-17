@@ -158,16 +158,14 @@ describe('cancellationAwareDelay', () => {
   it('preserves the original error when setTimeout fails', async () => {
     vi.useFakeTimers()
 
-    // Using fake timers but mocking setTimeout implementation to throw
-    // This allows simulating a failure in the environment's timer capability
-    // while still conforming to the requirement of not using the spy to intercept internals
+    // Using fake timers but mocking setTimeout to throw.
+    // This allows simulating a failure in the environment's timer capability.
     const mockError = new Error('simulated setTimeout failure')
-    const originalSetTimeout = global.setTimeout
-
-    // Temporarily replace setTimeout to simulate an environment failure at the boundary
-    global.setTimeout = (() => {
-      throw mockError
-    }) as unknown as typeof setTimeout
+    const setTimeoutSpy = vi
+      .spyOn(global, 'setTimeout')
+      .mockImplementation(() => {
+        throw mockError
+      })
 
     try {
       const waitPromise = cancellationAwareDelay(2)
@@ -179,7 +177,7 @@ describe('cancellationAwareDelay', () => {
         expect((error as Error).cause).toBe(mockError)
       }
     } finally {
-      global.setTimeout = originalSetTimeout
+      setTimeoutSpy.mockRestore()
     }
   })
 
