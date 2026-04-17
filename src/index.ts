@@ -40,7 +40,7 @@ export function signalExitCode(signal: 'SIGINT' | 'SIGTERM'): number {
       return 143
     default: {
       const _exhaustiveCheck: never = signal
-      return _exhaustiveCheck
+      throw new Error(`Unexpected signal: ${_exhaustiveCheck}`)
     }
   }
 }
