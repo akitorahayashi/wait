@@ -15,13 +15,17 @@ The runtime boundaries are:
 Runtime dependencies follow this direction:
 
 ```text
-index -> action -> app -> domain
-app -> adapters
-domain -> none
+index -> action, app, adapters
+action -> domain
+app -> domain
 adapters -> node runtime
 ```
 
-`domain` remains pure and does not depend on runtime boundaries.
+The `index.ts` file acts as the root orchestrator. It orchestrates the `action`, `app`, and `adapters` modules.
+
+The `app` module utilizes dependency inversion. It defines an explicit dependency interface instead of importing from `adapters` directly. This protects `app` logic from `adapters`.
+
+The `domain` module remains pure and does not depend on runtime boundaries.
 
 ## Runtime Execution Flow
 
