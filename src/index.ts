@@ -38,6 +38,10 @@ export function signalExitCode(signal: 'SIGINT' | 'SIGTERM'): number {
       return 130
     case 'SIGTERM':
       return 143
+    default: {
+      const _exhaustiveCheck: never = signal
+      throw new Error(`Unexpected signal: ${_exhaustiveCheck}`)
+    }
   }
 }
 
