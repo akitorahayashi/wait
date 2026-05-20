@@ -30,12 +30,12 @@ steps:
       cache: pnpm
       cache-dependency-path: pnpm-lock.yaml
 
-    - name: Setup mise with locked tools
-      uses: jdx/mise-action@v3
-      with:
-        version: ${{ inputs.mise-version }}
-        install_args: --locked
+  - name: Setup mise with locked tools
+    uses: jdx/mise-action@v3
+    with:
+      version: ${{ inputs.mise-version }}
+      install_args: --locked
 
-    - name: Run just setup
-      run: mise exec -- just setup ${{ inputs.args }}
-      shell: bash
+  - name: Run just setup
+    run: mise exec -- just setup ${{ inputs.args }}
+    shell: bash
