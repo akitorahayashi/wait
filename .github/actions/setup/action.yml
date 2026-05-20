@@ -18,24 +18,23 @@ inputs:
 runs:
   using: composite
   steps:
-steps:
-  - uses: pnpm/action-setup@v6
-    with:
-      cache: false
+    - uses: pnpm/action-setup@v6
+      with:
+        cache: false
 
-  - name: Setup Node.js
-    uses: actions/setup-node@v5
-    with:
-      node-version-file: ${{ inputs.node-version-file }}
-      cache: pnpm
-      cache-dependency-path: pnpm-lock.yaml
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
 
-  - name: Setup mise with locked tools
-    uses: jdx/mise-action@v3
-    with:
-      version: ${{ inputs.mise-version }}
-      install_args: --locked
+    - name: Setup mise with locked tools
+      uses: jdx/mise-action@v3
+      with:
+        version: ${{ inputs.mise-version }}
+        install_args: --locked
 
-  - name: Run just setup
-    run: mise exec -- just setup ${{ inputs.args }}
-    shell: bash
+    - name: Run just setup
+      run: mise exec -- just setup ${{ inputs.args }}
+      shell: bash
