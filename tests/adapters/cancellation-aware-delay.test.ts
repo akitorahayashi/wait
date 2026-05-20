@@ -1,225 +1,225 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   WaitCancelledError,
   cancellationAwareDelay,
-} from '../../src/adapters/cancellation-aware-delay'
+} from '../../src/adapters/cancellation-aware-delay';
 
 function captureSignalHandlers(): {
-  handlers: Map<NodeJS.Signals, () => void>
-  restore: () => void
+  handlers: Map<NodeJS.Signals, () => void>;
+  restore: () => void;
 } {
-  const handlers = new Map<NodeJS.Signals, () => void>()
-  const originalOn = process.on.bind(process)
-  const originalOff = process.off.bind(process)
+  const handlers = new Map<NodeJS.Signals, () => void>();
+  const originalOn = process.on.bind(process);
+  const originalOff = process.off.bind(process);
 
   const onSpy = vi.spyOn(process, 'on').mockImplementation(((
     event,
     listener,
   ) => {
     if (event === 'SIGINT' || event === 'SIGTERM') {
-      handlers.set(event, listener as () => void)
-      return process
+      handlers.set(event, listener as () => void);
+      return process;
     }
-    return originalOn(event, listener)
-  }) as typeof process.on)
+    return originalOn(event, listener);
+  }) as typeof process.on);
 
   const offSpy = vi.spyOn(process, 'off').mockImplementation(((
     event,
     listener,
   ) => {
     if (event === 'SIGINT' || event === 'SIGTERM') {
-      handlers.delete(event)
-      return process
+      handlers.delete(event);
+      return process;
     }
-    return originalOff(event, listener)
-  }) as typeof process.off)
+    return originalOff(event, listener);
+  }) as typeof process.off);
 
   return {
     handlers,
     restore: () => {
-      onSpy.mockRestore()
-      offSpy.mockRestore()
+      onSpy.mockRestore();
+      offSpy.mockRestore();
     },
-  }
+  };
 }
 
 describe('cancellationAwareDelay', () => {
   afterEach(() => {
-    vi.useRealTimers()
-  })
+    vi.useRealTimers();
+  });
 
   it.each([
     { duration: 0, description: 'is 0' },
     { duration: -5, description: 'is negative' },
   ])('resolves immediately if duration $description', async ({ duration }) => {
-    const waitPromise = cancellationAwareDelay(duration)
-    await expect(waitPromise).resolves.toBeUndefined()
-  })
+    const waitPromise = cancellationAwareDelay(duration);
+    await expect(waitPromise).resolves.toBeUndefined();
+  });
 
   it('resolves after the requested duration', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers();
 
-    const waitPromise = cancellationAwareDelay(2)
-    await vi.advanceTimersByTimeAsync(2000)
+    const waitPromise = cancellationAwareDelay(2);
+    await vi.advanceTimersByTimeAsync(2000);
 
-    await expect(waitPromise).resolves.toBeUndefined()
-  })
+    await expect(waitPromise).resolves.toBeUndefined();
+  });
 
   it('cancels promptly on SIGINT', async () => {
-    vi.useFakeTimers()
-    const { handlers, restore } = captureSignalHandlers()
+    vi.useFakeTimers();
+    const { handlers, restore } = captureSignalHandlers();
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
-      const handler = handlers.get('SIGINT')
+      const waitPromise = cancellationAwareDelay(60);
+      const handler = handlers.get('SIGINT');
 
-      expect(handler).toBeTypeOf('function')
-      handler?.()
+      expect(handler).toBeTypeOf('function');
+      handler?.();
 
-      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
-      expect(vi.getTimerCount()).toBe(0)
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError);
+      expect(vi.getTimerCount()).toBe(0);
     } finally {
-      restore()
+      restore();
     }
-  })
+  });
 
   it('cancels promptly on SIGTERM', async () => {
-    vi.useFakeTimers()
-    const { handlers, restore } = captureSignalHandlers()
+    vi.useFakeTimers();
+    const { handlers, restore } = captureSignalHandlers();
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
-      const handler = handlers.get('SIGTERM')
+      const waitPromise = cancellationAwareDelay(60);
+      const handler = handlers.get('SIGTERM');
 
-      expect(handler).toBeTypeOf('function')
-      handler?.()
+      expect(handler).toBeTypeOf('function');
+      handler?.();
 
-      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
-      expect(vi.getTimerCount()).toBe(0)
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError);
+      expect(vi.getTimerCount()).toBe(0);
     } finally {
-      restore()
+      restore();
     }
-  })
+  });
 
   it('resolves correctly for chunked delays longer than 60 seconds', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers();
 
-    const waitPromise = cancellationAwareDelay(150) // 60s + 60s + 30s
-    await vi.advanceTimersByTimeAsync(60_000)
-    await vi.advanceTimersByTimeAsync(60_000)
-    await vi.advanceTimersByTimeAsync(30_000)
+    const waitPromise = cancellationAwareDelay(150); // 60s + 60s + 30s
+    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(30_000);
 
-    await expect(waitPromise).resolves.toBeUndefined()
-  })
+    await expect(waitPromise).resolves.toBeUndefined();
+  });
 
   it('cancels properly during a subsequent chunk of a long delay', async () => {
-    vi.useFakeTimers()
-    const { handlers, restore } = captureSignalHandlers()
+    vi.useFakeTimers();
+    const { handlers, restore } = captureSignalHandlers();
 
     try {
-      const waitPromise = cancellationAwareDelay(150)
-      await vi.advanceTimersByTimeAsync(60_000)
+      const waitPromise = cancellationAwareDelay(150);
+      await vi.advanceTimersByTimeAsync(60_000);
 
-      const handler = handlers.get('SIGINT')
+      const handler = handlers.get('SIGINT');
 
-      expect(handler).toBeTypeOf('function')
-      handler?.()
+      expect(handler).toBeTypeOf('function');
+      handler?.();
 
-      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
-      expect(vi.getTimerCount()).toBe(0)
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError);
+      expect(vi.getTimerCount()).toBe(0);
     } finally {
-      restore()
+      restore();
     }
-  })
+  });
 
   it('preserves the original error when process.on fails', async () => {
-    vi.useFakeTimers()
-    const mockError = new Error('simulated process.on failure')
+    vi.useFakeTimers();
+    const mockError = new Error('simulated process.on failure');
     const onSpy = vi.spyOn(process, 'on').mockImplementation(() => {
-      throw mockError
-    })
+      throw mockError;
+    });
 
     try {
-      const waitPromise = cancellationAwareDelay(2)
+      const waitPromise = cancellationAwareDelay(2);
       await expect(waitPromise).rejects.toThrow(
         'Failed to install cancellation handlers.',
-      )
+      );
 
       try {
-        await waitPromise
+        await waitPromise;
       } catch (error) {
-        expect((error as Error).cause).toBe(mockError)
+        expect((error as Error).cause).toBe(mockError);
       }
     } finally {
-      onSpy.mockRestore()
+      onSpy.mockRestore();
     }
-  })
+  });
 
   it('preserves the original error when setTimeout fails', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers();
 
     // Using fake timers but mocking setTimeout to throw.
     // This allows simulating a failure in the environment's timer capability.
-    const mockError = new Error('simulated setTimeout failure')
+    const mockError = new Error('simulated setTimeout failure');
     const setTimeoutSpy = vi
       .spyOn(global, 'setTimeout')
       .mockImplementation(() => {
-        throw mockError
-      })
+        throw mockError;
+      });
 
     try {
-      const waitPromise = cancellationAwareDelay(2)
-      await expect(waitPromise).rejects.toThrow('Failed to start wait timer.')
+      const waitPromise = cancellationAwareDelay(2);
+      await expect(waitPromise).rejects.toThrow('Failed to start wait timer.');
 
       try {
-        await waitPromise
+        await waitPromise;
       } catch (error) {
-        expect((error as Error).cause).toBe(mockError)
+        expect((error as Error).cause).toBe(mockError);
       }
     } finally {
-      setTimeoutSpy.mockRestore()
+      setTimeoutSpy.mockRestore();
     }
-  })
+  });
 
   it('ignores duplicate cancellation signals', async () => {
-    vi.useFakeTimers()
-    const { handlers, restore } = captureSignalHandlers()
+    vi.useFakeTimers();
+    const { handlers, restore } = captureSignalHandlers();
 
     try {
-      const waitPromise = cancellationAwareDelay(60)
-      const handler = handlers.get('SIGINT')
+      const waitPromise = cancellationAwareDelay(60);
+      const handler = handlers.get('SIGINT');
 
-      expect(handler).toBeTypeOf('function')
-      handler?.()
-      handler?.()
+      expect(handler).toBeTypeOf('function');
+      handler?.();
+      handler?.();
 
-      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
-      expect(vi.getTimerCount()).toBe(0)
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError);
+      expect(vi.getTimerCount()).toBe(0);
     } finally {
-      restore()
+      restore();
     }
-  })
+  });
 
   it('ignores subsequent chunk scheduling after wait is cancelled', async () => {
-    vi.useFakeTimers()
-    const { handlers, restore } = captureSignalHandlers()
+    vi.useFakeTimers();
+    const { handlers, restore } = captureSignalHandlers();
 
     try {
-      const waitPromise = cancellationAwareDelay(150)
+      const waitPromise = cancellationAwareDelay(150);
 
-      const handler = handlers.get('SIGINT')
-      expect(handler).toBeTypeOf('function')
+      const handler = handlers.get('SIGINT');
+      expect(handler).toBeTypeOf('function');
 
-      handler?.()
+      handler?.();
 
-      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError)
+      await expect(waitPromise).rejects.toBeInstanceOf(WaitCancelledError);
 
       // Run all remaining timers to ensure no further chunks are scheduled
-      await vi.runAllTimersAsync()
+      await vi.runAllTimersAsync();
 
-      expect(vi.getTimerCount()).toBe(0)
+      expect(vi.getTimerCount()).toBe(0);
     } finally {
-      restore()
+      restore();
     }
-  })
-})
+  });
+});
