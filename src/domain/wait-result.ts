@@ -1,4 +1,4 @@
 export interface WaitResult {
-  waited: boolean
-  effectiveSeconds: number
+  waited: boolean;
+  effectiveSeconds: number;
 }
