@@ -1,5 +1,5 @@
-import { resolveEffectiveSeconds, type DurationInput } from './duration';
-import { type Result, ok, err } from './result';
+import { type DurationInput, resolveEffectiveSeconds } from './duration';
+import { err, ok, type Result } from './result';
 
 export interface WaitRequest {
   enabled: boolean;

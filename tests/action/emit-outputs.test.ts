@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as core from '@actions/core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { emitOutputs } from '../../src/action/emit-outputs';
 
 vi.mock('@actions/core', () => ({

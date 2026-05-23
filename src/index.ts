@@ -2,8 +2,8 @@ import * as core from '@actions/core';
 import { emitOutputs } from './action/emit-outputs';
 import { readInputs } from './action/read-inputs';
 import {
-  WaitCancelledError,
   cancellationAwareDelay,
+  WaitCancelledError,
 } from './adapters/cancellation-aware-delay';
 import { executeWait } from './app/execute-wait';
 
