@@ -1,8 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as core from '@actions/core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readInputs } from '../../src/action/read-inputs';
-import { createWaitRequest } from '../../src/domain/wait-request';
 import { ok } from '../../src/domain/result';
+import { createWaitRequest } from '../../src/domain/wait-request';
 
 vi.mock('@actions/core', () => ({
   getInput: vi.fn(),

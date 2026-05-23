@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as core from '@actions/core';
-import { run, handleError, signalExitCode } from '../src/index';
-import { WaitCancelledError } from '../src/adapters/cancellation-aware-delay';
-import * as readInputsModule from '../src/action/read-inputs';
-import * as executeWaitModule from '../src/app/execute-wait';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as emitOutputsModule from '../src/action/emit-outputs';
+import * as readInputsModule from '../src/action/read-inputs';
+import { WaitCancelledError } from '../src/adapters/cancellation-aware-delay';
+import * as executeWaitModule from '../src/app/execute-wait';
 import type { WaitRequest } from '../src/domain/wait-request';
 import type { WaitResult } from '../src/domain/wait-result';
+import { handleError, run, signalExitCode } from '../src/index';
 
 vi.mock('@actions/core');
 vi.mock('../src/action/read-inputs');

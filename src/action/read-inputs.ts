@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
-import { createWaitRequest, type WaitRequest } from '../domain/wait-request';
 import type { DurationInput } from '../domain/duration';
-import { type Result, ok, err } from '../domain/result';
+import { err, ok, type Result } from '../domain/result';
+import { createWaitRequest, type WaitRequest } from '../domain/wait-request';
 
 export function readInputs(): Result<WaitRequest, Error> {
   const enabledInput = readOptionalInput('enabled');
